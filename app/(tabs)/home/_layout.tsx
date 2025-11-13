@@ -5,7 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeLayout() {
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-[#080808]">
       <ScrollView showsVerticalScrollIndicator={false}>
         <Slot />
       </ScrollView>
