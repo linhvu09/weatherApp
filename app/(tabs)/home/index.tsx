@@ -6,8 +6,26 @@ export default function HomeScreen() {
     <SafeAreaView className="flex-1 bg-black">
       <View className="flex-1 justify-center items-center">
         <Text className="text-2xl  color-white">
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home
+          Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠
+          Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home
+          Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠
+          Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home
+          Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠
+          Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home
+          Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠
+          Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home
+          Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠
+          Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home
+          Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠
+          Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home
+          Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠
+          Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home
+          Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠
+          Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home
+          Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠
+          Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home
+          Screen 🏠 Home Screen 🏠 Home Screen
         </Text>
       </View>
     </SafeAreaView>
