@@ -70,7 +70,7 @@ const RECENTLY_PLAYED: Song[] = [
 
 export default function LibraryScreen() {
   return (
-    <SafeAreaView className="flex-1 bg-black" edges={["top"]}>
+    <SafeAreaView className="flex-1 bg-[#080808]" edges={["top"]}>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <LibraryHeader />
 
