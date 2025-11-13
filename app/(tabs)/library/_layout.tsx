@@ -5,7 +5,7 @@ export default function LibraryLayout() {
     <Stack
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: "#000" },
+        contentStyle: { backgroundColor: "#080808" },
       }}
     >
       <Stack.Screen name="index" />
