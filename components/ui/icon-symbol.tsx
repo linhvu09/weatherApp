@@ -24,6 +24,12 @@ const MAPPING = {
   magnifyingglass: "search",
   "music.note.list": "library-music",
   "person.fill": "person",
+  "heart.fill": "favorite",
+  "arrow.down.circle.fill": "download",
+  ellipsis: "more-vert",
+  "chevron.left": "chevron-left",
+  "arrow.up.arrow.down": "sort",
+  plus: "add",
 } as IconMapping;
 
 /**

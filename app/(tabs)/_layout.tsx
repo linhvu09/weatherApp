@@ -1,8 +1,7 @@
-import { Tabs } from "expo-router";
-import React from "react";
-
 import { HapticTab } from "@/components/haptic-tab";
 import { IconSymbol } from "@/components/ui/icon-symbol";
+import { Tabs } from "expo-router";
+import React from "react";
 
 export default function TabLayout() {
   return (
@@ -49,7 +48,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="library/index"
+        name="library"
         options={{
           title: "Thư viện",
           tabBarIcon: ({ color }) => (
