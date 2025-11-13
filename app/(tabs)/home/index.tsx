@@ -3,9 +3,30 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-black">
       <View className="flex-1 justify-center items-center">
-        <Text className="text-2xl font-bold">🏠 Home Screen</Text>
+        <Text className="text-2xl  color-white">
+          🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home
+          Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠
+          Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home
+          Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠
+          Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home
+          Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠
+          Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home
+          Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠
+          Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home
+          Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠
+          Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home
+          Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠
+          Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home
+          Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠
+          Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home
+          Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠
+          Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home
+          Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠
+          Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home Screen 🏠 Home
+          Screen 🏠 Home Screen 🏠 Home Screen
+        </Text>
       </View>
     </SafeAreaView>
   );
