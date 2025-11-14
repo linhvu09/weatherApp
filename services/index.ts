@@ -1,2 +1,5 @@
 export * from "./api-client";
-export * from "./artist/artist.service";
+export * from "./api-user-be";
+export * from "./artist";
+export * from "./auth";
+export * from "./spotify-token";

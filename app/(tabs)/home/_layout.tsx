@@ -4,11 +4,11 @@ import { ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeLayout() {
-  return (
-    <SafeAreaView className="flex-1 bg-[#080808]">
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <Slot />
-      </ScrollView>
-    </SafeAreaView>
-  );
+    return (
+        <SafeAreaView className="flex-1 bg-[#080808]">
+            <ScrollView showsVerticalScrollIndicator={false}>
+                <Slot />
+            </ScrollView>
+        </SafeAreaView>
+    );
 }
