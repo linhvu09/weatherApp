@@ -1,5 +1,10 @@
-import React, { useState } from "react";
-import { ScrollView, Text, TouchableOpacity } from "react-native";
+import React, { useEffect, useRef } from "react";
+import { Animated, ScrollView, TouchableOpacity } from "react-native";
+
+interface CategorySelectorProps {
+  activeCategory: string;
+  onCategoryChange: (category: string) => void;
+}
 
 const categories = [
   "Dành cho bạn",
@@ -11,8 +16,29 @@ const categories = [
   "Di chuyển",
 ];
 
-export default function CategorySelector() {
-  const [activeCategory, setActiveCategory] = useState("Dành cho bạn");
+export default function CategorySelector({
+  activeCategory,
+  onCategoryChange,
+}: CategorySelectorProps) {
+  const animatedValues = useRef(
+    categories.reduce(
+      (acc, item) => {
+        acc[item] = new Animated.Value(item === activeCategory ? 1 : 0);
+        return acc;
+      },
+      {} as Record<string, Animated.Value>,
+    ),
+  ).current;
+
+  useEffect(() => {
+    categories.forEach((item) => {
+      Animated.timing(animatedValues[item], {
+        toValue: item === activeCategory ? 1 : 0,
+        duration: 200,
+        useNativeDriver: false,
+      }).start();
+    });
+  }, [activeCategory, animatedValues]);
 
   return (
     <ScrollView
@@ -22,23 +48,42 @@ export default function CategorySelector() {
       contentContainerStyle={{ paddingHorizontal: 16 }}
     >
       {categories.map((item) => {
-        const isActive = item === activeCategory;
+        const animatedValue = animatedValues[item];
 
-        const buttonClass = isActive
-          ? "bg-gray-700/70 px-4 py-2 rounded-full mr-3"
-          : "bg-transparent px-4 py-2 rounded-full mr-3";
+        const backgroundColor = animatedValue.interpolate({
+          inputRange: [0, 1],
+          outputRange: ["transparent", "rgba(55,65,81,0.7)"],
+        });
 
-        const textClass = isActive
-          ? "text-white font-bold text-lg"
-          : "text-gray-400 font-semibold text-lg";
+        const textColor = animatedValue.interpolate({
+          inputRange: [0, 1],
+          outputRange: ["#9CA3AF", "#FFFFFF"],
+        });
 
         return (
           <TouchableOpacity
             key={item}
-            onPress={() => setActiveCategory(item)}
-            className={buttonClass}
+            onPress={() => onCategoryChange(item)}
+            style={{ marginRight: 12 }}
           >
-            <Text className={textClass}>{item}</Text>
+            <Animated.View
+              style={{
+                backgroundColor,
+                paddingHorizontal: 16,
+                paddingVertical: 8,
+                borderRadius: 999,
+              }}
+            >
+              <Animated.Text
+                style={{
+                  color: textColor,
+                  fontWeight: item === activeCategory ? "bold" : "600",
+                  fontSize: 18,
+                }}
+              >
+                {item}
+              </Animated.Text>
+            </Animated.View>
           </TouchableOpacity>
         );
       })}
