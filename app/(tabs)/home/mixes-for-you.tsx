@@ -1,4 +1,4 @@
-import { Image, ScrollView, Text, View } from "react-native";
+import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 export default function MixesForYou() {
   const mixesData = [
@@ -38,7 +38,12 @@ export default function MixesForYou() {
         contentContainerStyle={{ paddingLeft: 16 }}
       >
         {mixesData.map((mix) => (
-          <View key={mix.id} className="mr-3 w-40">
+          <TouchableOpacity
+            key={mix.id}
+            className="mr-3 w-40"
+            activeOpacity={0.6}
+            onPress={() => {}}
+          >
             <View className="w-full aspect-square rounded-lg overflow-hidden mb-2">
               <Image
                 source={{ uri: mix.imageUrl }}
@@ -56,7 +61,7 @@ export default function MixesForYou() {
             <Text className="text-gray-300 text-sm" numberOfLines={2}>
               {mix.artists}
             </Text>
-          </View>
+          </TouchableOpacity>
         ))}
       </ScrollView>
     </View>

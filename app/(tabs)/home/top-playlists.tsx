@@ -51,7 +51,12 @@ export default function TopPlaylists() {
         contentContainerStyle={{ paddingLeft: 16 }}
       >
         {playlistsData.map((item) => (
-          <View key={item.id} className="mr-3 w-40">
+          <TouchableOpacity
+            key={item.id}
+            className="mr-3 w-40"
+            activeOpacity={0.6}
+            onPress={() => {}}
+          >
             <View className="w-full aspect-square rounded-lg overflow-hidden mb-2">
               <Image
                 source={{ uri: item.imageUrl }}
@@ -63,7 +68,7 @@ export default function TopPlaylists() {
             <Text className="text-white text-sm" numberOfLines={2}>
               {item.title}
             </Text>
-          </View>
+          </TouchableOpacity>
         ))}
       </ScrollView>
     </View>

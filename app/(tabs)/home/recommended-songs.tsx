@@ -1,6 +1,8 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { Heart, MoreVertical, Play } from "lucide-react-native";
 import React from "react";
 import {
+  Dimensions,
   Image,
   ImageSourcePropType,
   ScrollView,
@@ -139,10 +141,20 @@ interface SongItemProps {
   title: string;
   artist: string;
   imageSource: ImageSourcePropType;
+  onPress?: () => void;
 }
 
-const SongItem: React.FC<SongItemProps> = ({ title, artist, imageSource }) => (
-  <View className="flex-row items-center py-1 h-16">
+const SongItem: React.FC<SongItemProps> = ({
+  title,
+  artist,
+  imageSource,
+  onPress,
+}) => (
+  <TouchableOpacity
+    className="flex-row items-center py-1 h-16"
+    onPress={onPress}
+    activeOpacity={0.7}
+  >
     <View className="flex-row items-center flex-1">
       <Image
         source={imageSource}
@@ -161,7 +173,7 @@ const SongItem: React.FC<SongItemProps> = ({ title, artist, imageSource }) => (
     <TouchableOpacity className="p-2 ml-2">
       <MoreVertical size={20} color="#9ca3af" />
     </TouchableOpacity>
-  </View>
+  </TouchableOpacity>
 );
 
 interface PlaylistCardProps {
@@ -169,46 +181,60 @@ interface PlaylistCardProps {
   songs: Song[];
 }
 
+const SCREEN_WIDTH = Dimensions.get("window").width;
+
 const PlaylistCard: React.FC<PlaylistCardProps> = ({ playlist, songs }) => (
-  <View className="bg-neutral-900 rounded-lg p-3 mr-4 w-80 flex-col justify-between">
-    <View>
-      <View className="flex-row items-center justify-between mb-4">
-        <View className="flex-row items-start flex-1">
-          <Image
-            source={playlist.coverSource}
-            className="w-28 h-28 rounded-md mr-4"
-            resizeMode="cover"
-          />
-          <View className="flex-1 flex-col justify-between h-28">
+  <LinearGradient
+    colors={["#1f1f1f", "#1b1b1b", "#000000"]}
+    start={{ x: 0, y: 0 }}
+    end={{ x: 0, y: 1 }}
+    style={{
+      width: SCREEN_WIDTH * 0.75,
+      borderRadius: 16,
+      padding: 16,
+      marginRight: 16,
+    }}
+  >
+    <View className="flex-col justify-between">
+      <View className="flex-row items-start justify-between mb-5">
+        <Image
+          source={playlist.coverSource}
+          className="w-32 h-32 rounded-lg mr-4"
+          resizeMode="cover"
+        />
+
+        <View className="flex-1 h-32 justify-between">
+          <Text
+            className="text-white text-[20px] font-bold w-full leading-6"
+            numberOfLines={2}
+          >
+            {playlist.title}
+          </Text>
+
+          <View className="flex-row items-center justify-between mt-2">
             <View>
-              <Text
-                className="text-white text-xl font-bold mb-1"
-                numberOfLines={2}
-              >
-                {playlist.title}
-              </Text>
-              <Text className="text-gray-400 text-sm">
+              <Text className="text-gray-400 text-sm mb-2">
                 {playlist.songCount} songs
               </Text>
+
+              <View className="flex-row items-center">
+                <TouchableOpacity className="p-2">
+                  <Heart size={20} color="#9ca3af" />
+                </TouchableOpacity>
+                <TouchableOpacity className="p-2 ml-1">
+                  <MoreVertical size={20} color="#9ca3af" />
+                </TouchableOpacity>
+              </View>
             </View>
 
-            <View className="flex-row items-center space-x-3">
-              <TouchableOpacity className="p-1">
-                <Heart size={20} color="#9ca3af" fill="transparent" />
-              </TouchableOpacity>
-              <TouchableOpacity className="p-1">
-                <MoreVertical size={20} color="#9ca3af" />
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity className="bg-white rounded-full p-3 shadow shadow-black/50">
+              <Play size={22} color="black" fill="black" />
+            </TouchableOpacity>
           </View>
         </View>
-
-        <TouchableOpacity className="bg-white rounded-full p-3 ml-4 shadow-lg shadow-black/50 self-end">
-          <Play size={24} color="black" fill="black" />
-        </TouchableOpacity>
       </View>
 
-      <View>
+      <View className="mt-1">
         {songs.slice(0, 4).map((song) => (
           <SongItem
             key={song.id}
@@ -217,13 +243,19 @@ const PlaylistCard: React.FC<PlaylistCardProps> = ({ playlist, songs }) => (
             imageSource={song.imageSource}
           />
         ))}
-      </View>
-    </View>
 
-    <TouchableOpacity className="mt-4 self-end bg-white px-5 py-2 rounded-full">
-      <Text className="text-black font-semibold">See All</Text>
-    </TouchableOpacity>
-  </View>
+        {Array(4 - Math.min(4, songs.length))
+          .fill(0)
+          .map((_, idx) => (
+            <View key={`placeholder-${idx}`} className="h-16" />
+          ))}
+      </View>
+
+      <TouchableOpacity className="mt-5 self-end bg-white px-5 py-2 rounded-full">
+        <Text className="text-black font-semibold">See All</Text>
+      </TouchableOpacity>
+    </View>
+  </LinearGradient>
 );
 
 interface HorizontalPlaylistListProps {
