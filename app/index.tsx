@@ -1,3 +1,4 @@
+import { authService } from "@/services";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
@@ -11,8 +12,7 @@ export default function App() {
 
     const checkAuth = async () => {
         try {
-            // const isLoggedIn = await authService.isAuthenticated();
-            const isLoggedIn = false; // Tạm thời đặt là false để kiểm tra
+            const isLoggedIn = await authService.isAuthenticated();
 
             setTimeout(() => {
                 if (isLoggedIn) {

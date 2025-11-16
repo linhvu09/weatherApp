@@ -3,8 +3,7 @@ import axios, { AxiosHeaders } from "axios";
 
 export const userApiClient = axios.create({
     baseURL:
-        process.env.EXPO_PUBLIC_USER_API_BASE_URL ||
-        "https://music-be-bqgb.onrender.com",
+        process.env.EXPO_PUBLIC_USER_API_BASE_URL || "http://localhost:3000",
     timeout: 15000,
     headers: {
         "Content-Type": "application/json",
