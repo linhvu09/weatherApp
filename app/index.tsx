@@ -6,9 +6,13 @@ export default function App() {
     const router = useRouter();
 
     useEffect(() => {
-        // Kiểm tra trạng thái đăng nhập
-        const checkAuth = async () => {
-            const isLoggedIn = true; // Giả sử đã đăng nhập
+        checkAuth();
+    }, []);
+
+    const checkAuth = async () => {
+        try {
+            // const isLoggedIn = await authService.isAuthenticated();
+            const isLoggedIn = false; // Tạm thời đặt là false để kiểm tra
 
             setTimeout(() => {
                 if (isLoggedIn) {
@@ -17,13 +21,14 @@ export default function App() {
                     router.replace("/auth/login");
                 }
             }, 1000);
-        };
-
-        checkAuth();
-    }, []);
+        } catch (error) {
+            console.error("Lỗi kiểm tra auth:", error);
+            router.replace("/auth/login");
+        }
+    };
 
     return (
-        <View className="flex-1 justify-center items-center bg-blue-500">
+        <View className="flex-1 justify-center items-center bg-[#1DB954]">
             <Text className="text-white text-3xl font-bold mb-4">
                 🎵 MusicApp
             </Text>

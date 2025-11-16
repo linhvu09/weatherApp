@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
+import axios, { AxiosHeaders } from "axios";
 
 export const userApiClient = axios.create({
     baseURL:
@@ -13,15 +13,27 @@ export const userApiClient = axios.create({
 
 userApiClient.interceptors.request.use(
     async (config) => {
-        const token = await AsyncStorage.getItem("userToken");
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+        const url = (config.url || "").toString();
+
+        // Bỏ qua token cho các endpoint auth
+        const isAuthEndpoint =
+            url.startsWith("/api/auth") ||
+            url.includes("/api/auth/login") ||
+            url.includes("/api/auth/register") ||
+            url.includes("/api/auth/google") ||
+            url.includes("/api/auth/facebook");
+
+        if (!isAuthEndpoint) {
+            const token = await AsyncStorage.getItem("userToken");
+            if (token) {
+                config.headers = AxiosHeaders.from(config.headers);
+                (config.headers as any).Authorization = `Bearer ${token}`;
+            }
         }
+
         return config;
     },
-    (error) => {
-        return Promise.reject(error);
-    },
+    (error) => Promise.reject(error),
 );
 
 userApiClient.interceptors.response.use(
