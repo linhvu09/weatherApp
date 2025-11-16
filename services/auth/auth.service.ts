@@ -1,4 +1,3 @@
-// services/auth/auth.service.ts
 import type {
     AuthResponse,
     LoginCredentials,
@@ -58,11 +57,6 @@ class AuthService {
             await AsyncStorage.setItem("user", JSON.stringify(user));
             return { token, user };
         } catch (error: any) {
-            console.error(
-                "Lỗi đăng ký:",
-                error.response?.data || error.message,
-            );
-
             if (error.response?.status === 400) {
                 throw new Error("Tên đăng nhập hoặc email đã tồn tại");
             }
@@ -105,7 +99,6 @@ class AuthService {
                 await AsyncStorage.setItem("userToken", token);
                 await AsyncStorage.setItem("user", JSON.stringify(user));
 
-                console.log("Đăng nhập Google thành công:", user.username);
                 return { token, user };
             } else if (result.type === "cancel") {
                 throw new Error("Đã hủy đăng nhập");
@@ -151,7 +144,6 @@ class AuthService {
                 await AsyncStorage.setItem("userToken", token);
                 await AsyncStorage.setItem("user", JSON.stringify(user));
 
-                console.log("Đăng nhập Facebook thành công:", user.username);
                 return { token, user };
             } else if (result.type === "cancel") {
                 throw new Error("Đã hủy đăng nhập");
@@ -167,7 +159,6 @@ class AuthService {
     async logout(): Promise<void> {
         try {
             await AsyncStorage.multiRemove(["userToken", "user"]);
-            console.log("Đăng xuất thành công");
         } catch (error) {
             console.error("Lỗi khi đăng xuất:", error);
         }
