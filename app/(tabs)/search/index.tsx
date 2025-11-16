@@ -89,8 +89,8 @@ export default function SearchScreen() {
             <ScrollView className="flex-1 px-4">
                 {/* Ô tìm kiếm */}
                 <Pressable onPress={() => router.push("./search/history")}>
-                    <View className="flex-row items-center bg-neutral-900 rounded-full px-4 py-2 mt-2">
-                        <Ionicons name="search" size={20} color="gray" />
+                    <View className="flex-row items-center bg-neutral-900 rounded-full px-4 py-2 mt-6">
+                        <Ionicons name="search" size={30} color="gray" />
                         <Text className="ml-2 text-gray-400 flex-1">
                             Search songs, artist, album or playlist
                         </Text>
@@ -108,18 +108,31 @@ export default function SearchScreen() {
                         contentContainerStyle={{ paddingRight: 16 }}
                     >
                         {trendingArtists.map((artist, index) => (
-                            <View key={index} className="items-center mr-7">
+                            <TouchableOpacity
+                                key={index}
+                                className="items-center mr-7"
+                                onPress={() =>
+                                    router.push({
+                                        pathname:
+                                            "/(tabs)/search/artist/[name]" as any,
+                                        params: {
+                                            name: artist.name,
+                                            img: artist.img,
+                                        },
+                                    })
+                                }
+                            >
                                 <Image
                                     source={{ uri: artist.img }}
                                     className="w-20 h-20 rounded-full"
                                 />
                                 <Text
                                     className="text-white text-xs mt-1 text-center w-20"
-                                    numberOfLines={1}
+                                    numberOfLines={2}
                                 >
                                     {artist.name}
                                 </Text>
-                            </View>
+                            </TouchableOpacity>
                         ))}
                     </ScrollView>
                 </View>

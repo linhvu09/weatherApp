@@ -46,9 +46,9 @@ export default function SearchHistoryScreen() {
     return (
         <SafeAreaView className="flex-1 bg-[#080808] px-4">
             {/* Thanh trên */}
-            <View className="flex-row items-center mt-2 mb-4 border-b border-gray-700 pb-2">
+            <View className="flex-row items-center mt-6 mb-4 border-b border-gray-700 pb-2">
                 <TouchableOpacity onPress={() => router.back()}>
-                    <Ionicons name="arrow-back" size={24} color="white" />
+                    <Ionicons name="arrow-back" size={30} color="white" />
                 </TouchableOpacity>
 
                 <TextInput
