@@ -1,107 +1,266 @@
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { router, useLocalSearchParams } from "expo-router";
 import React from "react";
+import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import {
-    FlatList,
-    Image,
-    ImageSourcePropType,
     SafeAreaView,
-    Text,
-    TouchableOpacity,
-    View,
-} from "react-native";
+    useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
-// Helper để xử lý ImageSourcePropType
-function getImageSource(image: ImageSourcePropType): ImageSourcePropType {
-    if (typeof image === "number") {
-        // local image
-        return image;
-    } else if (Array.isArray(image)) {
-        // nếu là mảng, lấy phần tử đầu tiên
-        return image[0];
-    } else {
-        // chắc chắn là { uri: string }
-        return image;
-    }
+// --- Dữ liệu Bài hát mô phỏng ---
+interface SongData {
+    id: string;
+    title: string;
+    artist: string;
+    duration: string;
+    image?: string;
 }
 
+const MOCK_SONGS: SongData[] = [
+    {
+        id: "s1",
+        title: "Blinding Lights",
+        artist: "The Weeknd",
+        duration: "3:20",
+        image: "https://picsum.photos/id/10/200/200",
+    },
+    {
+        id: "s2",
+        title: "Heat Waves",
+        artist: "Glass Animals",
+        duration: "3:58",
+        image: "https://picsum.photos/id/20/200/200",
+    },
+    {
+        id: "s3",
+        title: "Levitating",
+        artist: "Dua Lipa",
+        duration: "3:23",
+        image: "https://picsum.photos/id/30/200/200",
+    },
+    {
+        id: "s4",
+        title: "Good 4 u",
+        artist: "Olivia Rodrigo",
+        duration: "2:58",
+        image: "https://picsum.photos/id/40/200/200",
+    },
+    {
+        id: "s5",
+        title: "Stay",
+        artist: "The Kid LAROI, Justin Bieber",
+        duration: "2:21",
+        image: "https://picsum.photos/id/50/200/200",
+    },
+    {
+        id: "s6",
+        title: "Industry Baby",
+        artist: "Lil Nas X, Jack Harlow",
+        duration: "3:32",
+        image: "https://picsum.photos/id/60/200/200",
+    },
+    {
+        id: "s7",
+        title: "Peaches",
+        artist: "Justin Bieber ft. Daniel Caesar, Giveon",
+        duration: "3:18",
+        image: "https://picsum.photos/id/70/200/200",
+    },
+    {
+        id: "s8",
+        title: "Kiss Me More",
+        artist: "Doja Cat ft. SZA",
+        duration: "3:28",
+        image: "https://picsum.photos/id/80/200/200",
+    },
+    {
+        id: "s9",
+        title: "Happier Than Ever",
+        artist: "Billie Eilish",
+        duration: "4:58",
+        image: "https://picsum.photos/id/90/200/200",
+    },
+    {
+        id: "s10",
+        title: "Shivers",
+        artist: "Ed Sheeran",
+        duration: "3:27",
+        image: "https://picsum.photos/id/100/200/200",
+    },
+
+    // 10 bài thêm, auto picsum id
+    ...Array.from({ length: 10 }, (_, i) => ({
+        id: `s${i + 11}`,
+        title: `Bài hát ${i + 11}`,
+        artist: `Nghệ sĩ ${i + 11}`,
+        duration: "3:00",
+        image: `https://picsum.photos/id/${110 + i}/200/200`,
+    })),
+];
+
+// Component SongItem
+const SongItem: React.FC<{ item: any }> = ({ item }) => (
+    <View
+        style={{
+            flexDirection: "row",
+            alignItems: "center",
+            paddingVertical: 8,
+            paddingHorizontal: 16,
+        }}
+    >
+        <Image
+            source={{
+                uri:
+                    item.image ||
+                    "https://via.placeholder.com/80x80.png?text=Song",
+            }}
+            style={{ width: 48, height: 48, borderRadius: 8, marginRight: 12 }}
+        />
+        <View style={{ flex: 1 }}>
+            <Text
+                style={{ color: "white", fontSize: 16, fontWeight: "600" }}
+                numberOfLines={1}
+            >
+                {item.title}
+            </Text>
+            <Text style={{ color: "#888", fontSize: 14 }} numberOfLines={1}>
+                {item.artist}
+            </Text>
+        </View>
+        <Ionicons name="ellipsis-vertical" size={20} color="gray" />
+    </View>
+);
+
 export default function AlbumDetailScreen() {
-    const router = useRouter();
     const params = useLocalSearchParams();
+    const { albumTitle, subtitle, image } = params;
 
-    const albumId = params.id as string;
-    const albumTitle = params.albumTitle as string;
-    const subtitle = params.subtitle as string;
-    const imageParam = params.image;
+    const insets = useSafeAreaInsets();
 
-    // Xử lý image
-    const imageSource = getImageSource(imageParam as ImageSourcePropType);
-
-    // Ví dụ track list tĩnh
-    const tracks = [
-        { id: "1", title: "Track One", duration: "3:12" },
-        { id: "2", title: "Track Two", duration: "4:02" },
-        { id: "3", title: "Track Three", duration: "2:45" },
-        { id: "4", title: "Track Four", duration: "3:58" },
-    ];
+    const albumSongs = MOCK_SONGS; // dữ liệu bài hát
 
     return (
-        <SafeAreaView className="flex-1 bg-black">
-            {/* HEADER IMAGE */}
-            <View className="w-full h-[360px] relative">
-                <Image
-                    source={imageSource}
-                    className="w-full h-full absolute"
-                    resizeMode="cover"
-                />
-                {/* Gradient overlay */}
-                <View className="absolute inset-0 bg-gradient-to-b from-transparent to-black/90" />
+        <SafeAreaView
+            style={{ flex: 1, backgroundColor: "black" }}
+            edges={["bottom"]}
+        >
+            {/* Header + Nút Play */}
+            <View>
+                {/* Ảnh bìa */}
+                <View style={{ position: "relative" }}>
+                    <Image
+                        source={{ uri: image as string }}
+                        style={{
+                            width: "100%",
+                            height: 260,
+                            borderRadius: 0,
+                        }}
+                        resizeMode="cover"
+                    />
 
-                {/* Back button */}
-                <View className="absolute top-5 left-4">
-                    <TouchableOpacity onPress={() => router.back()}>
-                        <Text className="text-white text-lg">← Back</Text>
-                    </TouchableOpacity>
-                </View>
+                    {/* Overlay tối trong suốt */}
+                    <View
+                        style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            backgroundColor: "rgba(0,0,0,0.3)",
+                            borderRadius: 0,
+                        }}
+                    />
 
-                {/* Album title + subtitle */}
-                <View className="absolute bottom-6 px-4">
-                    <Text className="text-gray-300 text-base font-semibold mb-1">
-                        {subtitle}
-                    </Text>
-                    <Text
-                        className="text-white text-4xl font-extrabold"
-                        numberOfLines={3}
+                    {/* Icon quay lại sát cạnh trên */}
+                    <TouchableOpacity
+                        onPress={() => router.back()}
+                        style={{
+                            position: "absolute",
+                            top: 8, // đảm bảo không bị notch che
+                            left: 16,
+                            backgroundColor: "rgba(0,0,0,0.5)",
+                            borderRadius: 999,
+                            padding: 8,
+                        }}
                     >
-                        {albumTitle}
-                    </Text>
-                </View>
-            </View>
+                        <Ionicons name="arrow-back" size={24} color="white" />
+                    </TouchableOpacity>
 
-            {/* PLAY BUTTON */}
-            <View className="px-4 mt-4">
-                <TouchableOpacity className="bg-green-500 py-3 rounded-full flex-row items-center justify-center">
-                    <Text className="text-black text-lg font-bold">
-                        ▶ PLAY
-                    </Text>
-                </TouchableOpacity>
-            </View>
-
-            {/* TRACK LIST */}
-            <FlatList
-                data={tracks}
-                keyExtractor={(item) => item.id}
-                className="mt-6 px-4"
-                renderItem={({ item }) => (
-                    <View className="flex-row justify-between py-3 border-b border-gray-800">
-                        <Text className="text-white text-base">
-                            {item.title}
+                    {/* Title + Subtitle */}
+                    <View
+                        style={{ position: "absolute", bottom: 16, left: 16 }}
+                    >
+                        <Text
+                            style={{
+                                color: "#ccc",
+                                fontSize: 16,
+                                fontWeight: "500",
+                            }}
+                        >
+                            {subtitle}
                         </Text>
-                        <Text className="text-gray-400 text-sm">
-                            {item.duration}
+                        <Text
+                            style={{
+                                color: "white",
+                                fontSize: 28,
+                                fontWeight: "800",
+                            }}
+                            numberOfLines={2}
+                        >
+                            {albumTitle}
                         </Text>
                     </View>
-                )}
-            />
+                </View>
+
+                {/* Nút Play + Lưu + 3 chấm */}
+                <View
+                    style={{
+                        flexDirection: "row",
+                        justifyContent: "flex-end", // căn phải
+                        alignItems: "center",
+                        marginTop: 14,
+                        gap: 6, // khoảng cách giữa các icon
+                        paddingHorizontal: 16, // cách mép phải
+                    }}
+                >
+                    {/* Icon lưu playlist */}
+                    <TouchableOpacity>
+                        <Ionicons
+                            name="heart-outline"
+                            size={28}
+                            color="white"
+                        />
+                    </TouchableOpacity>
+
+                    {/* Icon 3 chấm */}
+                    <TouchableOpacity>
+                        <Ionicons
+                            name="ellipsis-vertical"
+                            size={28}
+                            color="white"
+                        />
+                    </TouchableOpacity>
+
+                    {/* Icon Play */}
+                    <TouchableOpacity>
+                        <Ionicons
+                            name="play-circle-sharp"
+                            size={48}
+                            color="#1DB954"
+                        />
+                    </TouchableOpacity>
+                </View>
+            </View>
+
+            {/* ScrollView chiếm phần còn lại */}
+            <View style={{ flex: 1, marginTop: 10 }}>
+                <ScrollView showsVerticalScrollIndicator={false}>
+                    {albumSongs.map((song) => (
+                        <SongItem key={song.id} item={song} />
+                    ))}
+                    <View style={{ height: 20 }} />
+                </ScrollView>
+            </View>
         </SafeAreaView>
     );
 }

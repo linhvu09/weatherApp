@@ -51,8 +51,15 @@ function AlbumItem({ item }: { item: AlbumData }) {
     const router = useRouter();
 
     const handlePress = () => {
-        const imageUri =
-            typeof item.image === "number" ? item.image : item.image.uri;
+        let imageUri: string;
+
+        if (typeof item.image === "number") {
+            imageUri = item.image.toString();
+        } else if (Array.isArray(item.image)) {
+            imageUri = item.image[0]?.uri ?? "";
+        } else {
+            imageUri = item.image.uri ?? "";
+        }
 
         router.push({
             pathname: `/(tabs)/home/album/${item.id}` as any,
