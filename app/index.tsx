@@ -1,10 +1,11 @@
+import SplashCustom from "@/components/splash-custom";
 import { authService } from "@/services";
 import { useRouter } from "expo-router";
-import { useEffect } from "react";
-import { ActivityIndicator, Text, View } from "react-native";
+import { useEffect, useState } from "react";
 
 export default function App() {
     const router = useRouter();
+    const [isChecking, setIsChecking] = useState(true);
 
     useEffect(() => {
         checkAuth();
@@ -15,24 +16,25 @@ export default function App() {
             const isLoggedIn = await authService.isAuthenticated();
 
             setTimeout(() => {
+                setIsChecking(false);
                 if (isLoggedIn) {
                     router.replace("/(tabs)/home");
                 } else {
                     router.replace("/auth/login");
                 }
-            }, 1000);
+            }, 1300);
         } catch (error) {
             console.error("Lỗi kiểm tra auth:", error);
-            router.replace("/auth/login");
+            setTimeout(() => {
+                setIsChecking(false);
+                router.replace("/auth/login");
+            }, 1300);
         }
     };
 
-    return (
-        <View className="flex-1 justify-center items-center bg-[#1DB954]">
-            <Text className="text-white text-3xl font-bold mb-4">
-                🎵 MusicApp
-            </Text>
-            <ActivityIndicator size="large" color="#fff" />
-        </View>
-    );
+    if (!isChecking) {
+        return null;
+    }
+
+    return <SplashCustom />;
 }
