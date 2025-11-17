@@ -32,7 +32,7 @@ export default function TabLayout() {
                 }}
             >
                 <Tabs.Screen
-                    name="home/index"
+                    name="home"
                     options={{
                         title: "Trang chủ",
                         tabBarIcon: ({ color }) => (
@@ -45,7 +45,7 @@ export default function TabLayout() {
                     }}
                 />
                 <Tabs.Screen
-                    name="search/index"
+                    name="search"
                     options={{
                         title: "Tìm kiếm",
                         tabBarIcon: ({ color }) => (
@@ -58,7 +58,7 @@ export default function TabLayout() {
                     }}
                 />
                 <Tabs.Screen
-                    name="library/index"
+                    name="library"
                     options={{
                         title: "Thư viện",
                         tabBarIcon: ({ color }) => (
