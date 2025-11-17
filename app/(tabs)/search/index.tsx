@@ -1,23 +1,45 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useState } from "react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
+    ActivityIndicator,
     Image,
     ScrollView,
     Text,
+    TextInput,
     TouchableOpacity,
     View,
-    TextInput,
-    ActivityIndicator,
+    PanResponder,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSearch } from "@/hooks/useSearch";
 
 export default function SearchScreen() {
-    const [query, setQuery] = useState("");
-    const { result, loading, onSearch } = useSearch();
     const router = useRouter();
+    const [query, setQuery] = useState("");
+
+    const { result, loading, onSearch } = useSearch();
+
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            if (query.trim().length > 0) {
+                onSearch(query);
+            }
+        }, 300);
+
+        return () => clearTimeout(timeout);
+    }, [query]);
+
+    // Vuốt sang trái để quay lại trang trước
+    const panResponder = PanResponder.create({
+        onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 20,
+        onPanResponderRelease: (_, g) => {
+            if (g.dx > 80) {
+                // Vuốt sang phải (swipe right)
+                router.back();
+            }
+        },
+    });
 
     const trendingArtists = [
         {
@@ -89,10 +111,14 @@ export default function SearchScreen() {
         },
     ];
 
+    // ========================== UI MÀN HÌNH ==========================
     return (
-        <SafeAreaView className="flex-1 bg-[#080808]">
+        <SafeAreaView
+            className="flex-1 bg-[#080808]"
+            {...panResponder.panHandlers}
+        >
             <ScrollView className="flex-1 px-4">
-                {/* Ô tìm kiếm thật sự */}
+                {/* SEARCH BAR */}
                 <View className="flex-row items-center bg-neutral-900 rounded-full px-4 py-2 mt-6">
                     <Ionicons name="search" size={24} color="gray" />
                     <TextInput
@@ -100,22 +126,21 @@ export default function SearchScreen() {
                         placeholderTextColor="gray"
                         value={query}
                         onChangeText={setQuery}
-                        onSubmitEditing={() => onSearch(query)}
                         className="ml-2 flex-1 text-white"
                     />
                 </View>
 
-                {/* Loading */}
+                {/* LOADING */}
                 {loading && (
                     <View className="mt-4">
                         <ActivityIndicator color="white" />
                     </View>
                 )}
 
-                {/* Kết quả Search */}
-                {result && (
-                    <View className="mt-5">
-                        {/* ARTISTS */}
+                {/* SEARCH RESULT */}
+                {result && query.trim().length > 0 && (
+                    <View className="mt-6">
+                        {/* Artists */}
                         {result.artists?.items?.length > 0 && (
                             <>
                                 <Text className="text-white text-lg font-semibold mb-3">
@@ -152,10 +177,10 @@ export default function SearchScreen() {
                             </>
                         )}
 
-                        {/* TRACKS */}
+                        {/* Tracks */}
                         {result.tracks?.items?.length > 0 && (
-                            <View className="mt-6">
-                                <Text className="text-white text-lg font-semibold mb-3">
+                            <>
+                                <Text className="text-white text-lg font-semibold mb-3 mt-5">
                                     Tracks
                                 </Text>
 
@@ -181,78 +206,78 @@ export default function SearchScreen() {
                                         </View>
                                     </View>
                                 ))}
-                            </View>
+                            </>
                         )}
                     </View>
                 )}
 
-                {/* ======================= */}
-                {/*      PHẦN CŨ GIỮ NGUYÊN */}
-                {/* ======================= */}
-
-                {/* Trending Artists */}
-                <View className="mt-8">
-                    <Text className="text-white text-lg font-semibold mb-3">
-                        🔥 Đề xuất
-                    </Text>
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={{ paddingRight: 16 }}
-                    >
-                        {trendingArtists.map((artist, index) => (
-                            <TouchableOpacity
-                                key={index}
-                                className="items-center mr-7"
-                                onPress={() =>
-                                    router.push({
-                                        pathname:
-                                            "/(tabs)/search/artist/[name]" as any,
-                                        params: {
-                                            name: artist.name,
-                                            img: artist.img,
-                                        },
-                                    })
-                                }
-                            >
-                                <Image
-                                    source={{ uri: artist.img }}
-                                    className="w-20 h-20 rounded-full"
-                                />
-                                <Text
-                                    className="text-white text-xs mt-1 text-center w-20"
-                                    numberOfLines={2}
+                {/* TRENDING - Chỉ hiện khi KHÔNG tìm kiếm */}
+                {query.trim().length === 0 && (
+                    <View className="mt-10">
+                        <Text className="text-white text-lg font-semibold mb-3">
+                            🔥 Đề xuất
+                        </Text>
+                        <ScrollView
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={{ paddingRight: 16 }}
+                        >
+                            {trendingArtists.map((artist, index) => (
+                                <TouchableOpacity
+                                    key={index}
+                                    className="items-center mr-7"
+                                    onPress={() =>
+                                        router.push({
+                                            pathname:
+                                                "/(tabs)/search/artist/[name]" as any,
+                                            params: {
+                                                name: artist.name,
+                                                img: artist.img,
+                                            },
+                                        })
+                                    }
                                 >
-                                    {artist.name}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
-                    </ScrollView>
-                </View>
-
-                {/* Browse */}
-                <View className="mt-6 mb-4">
-                    <Text className="text-white text-lg font-semibold mb-3">
-                        Browse
-                    </Text>
-                    <View className="flex-row flex-wrap justify-between">
-                        {categories.map((cat, index) => (
-                            <TouchableOpacity
-                                key={index}
-                                className="w-[48%] h-28 mb-7 rounded-xl overflow-hidden"
-                            >
-                                <Image
-                                    source={{ uri: cat.img }}
-                                    className="w-full h-full absolute opacity-80"
-                                />
-                                <View className="absolute inset-0 bg-black/30" />
-                                <Text className="text-white text-lg font-bold absolute bottom-2 left-2">
-                                    {cat.name}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
+                                    <Image
+                                        source={{ uri: artist.img }}
+                                        className="w-20 h-20 rounded-full"
+                                    />
+                                    <Text
+                                        className="text-white text-xs mt-1 text-center w-20"
+                                        numberOfLines={2}
+                                    >
+                                        {artist.name}
+                                    </Text>
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
                     </View>
-                </View>
+                )}
+
+                {/* BROWSE - Chỉ hiện khi KHÔNG tìm kiếm */}
+                {query.trim().length === 0 && (
+                    <View className="mt-8 mb-10">
+                        <Text className="text-white text-lg font-semibold mb-3">
+                            Browse
+                        </Text>
+                        <View className="flex-row flex-wrap justify-between">
+                            {categories.map((cat, index) => (
+                                <TouchableOpacity
+                                    key={index}
+                                    className="w-[48%] h-28 mb-6 rounded-xl overflow-hidden"
+                                >
+                                    <Image
+                                        source={{ uri: cat.img }}
+                                        className="w-full h-full absolute opacity-80"
+                                    />
+                                    <View className="absolute inset-0 bg-black/30" />
+                                    <Text className="text-white text-lg font-bold absolute bottom-2 left-2">
+                                        {cat.name}
+                                    </Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    </View>
+                )}
             </ScrollView>
         </SafeAreaView>
     );
