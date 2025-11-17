@@ -13,29 +13,36 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSearch } from "@/hooks/useSearch";
+import { useSearchHistory } from "@/hooks/useSearchHistory";
 
 export default function SearchScreen() {
     const router = useRouter();
     const [query, setQuery] = useState("");
+    const [focused, setFocused] = useState(false);
 
+    const { history, addHistory, removeHistoryItem, clearHistory } =
+        useSearchHistory();
     const { result, loading, onSearch } = useSearch();
 
+    // SEARCH REALTIME – LƯU LỊCH SỬ CHỈ KHI CÓ TEXT
     useEffect(() => {
+        if (query.trim().length === 0) return;
+
         const timeout = setTimeout(() => {
-            if (query.trim().length > 0) {
-                onSearch(query);
-            }
+            onSearch(query);
+            addHistory(query);
         }, 300);
 
         return () => clearTimeout(timeout);
     }, [query]);
 
-    // Vuốt sang trái để quay lại trang trước
+    // SWIPE BACK – CHỈ NHẬN VUỐT NGANG, HẠN CHẾ VUỐT CHÉO
     const panResponder = PanResponder.create({
-        onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 20,
+        onMoveShouldSetPanResponder: (_, g) => {
+            return Math.abs(g.dx) > 20 && Math.abs(g.dx) > Math.abs(g.dy);
+        },
         onPanResponderRelease: (_, g) => {
-            if (g.dx > 80) {
-                // Vuốt sang phải (swipe right)
+            if (g.dx > 80 && Math.abs(g.dy) < 30) {
                 router.back();
             }
         },
@@ -111,7 +118,6 @@ export default function SearchScreen() {
         },
     ];
 
-    // ========================== UI MÀN HÌNH ==========================
     return (
         <SafeAreaView
             className="flex-1 bg-[#080808]"
@@ -120,15 +126,81 @@ export default function SearchScreen() {
             <ScrollView className="flex-1 px-4">
                 {/* SEARCH BAR */}
                 <View className="flex-row items-center bg-neutral-900 rounded-full px-4 py-2 mt-6">
-                    <Ionicons name="search" size={24} color="gray" />
+                    <Ionicons name="search" size={28} color="gray" />
+
                     <TextInput
                         placeholder="Search songs, artist, album or playlist..."
                         placeholderTextColor="gray"
                         value={query}
                         onChangeText={setQuery}
+                        onFocus={() => setFocused(true)}
+                        onBlur={() => setFocused(false)}
                         className="ml-2 flex-1 text-white"
                     />
+
+                    {query.length > 0 && (
+                        <TouchableOpacity onPress={() => setQuery("")}>
+                            <Ionicons
+                                name="close-circle"
+                                size={20}
+                                color="gray"
+                            />
+                        </TouchableOpacity>
+                    )}
                 </View>
+
+                {/* LỊCH SỬ TÌM KIẾM */}
+                {query.trim().length === 0 &&
+                    !focused &&
+                    history.length > 0 && (
+                        <View className="mt-8">
+                            <View className="flex-row justify-between mb-3">
+                                <Text className="text-white text-lg font-semibold">
+                                    Lịch sử tìm kiếm
+                                </Text>
+
+                                <TouchableOpacity onPress={clearHistory}>
+                                    <Text className="text-red-400 text-sm">
+                                        Xoá hết
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+
+                            {history.map((item, index) => (
+                                <View
+                                    key={index}
+                                    className="flex-row items-center justify-between mb-3"
+                                >
+                                    <TouchableOpacity
+                                        className="flex-row items-center flex-1"
+                                        onPress={() => {
+                                            setQuery(item);
+                                            onSearch(item);
+                                        }}
+                                    >
+                                        <Ionicons
+                                            name="time"
+                                            size={18}
+                                            color="gray"
+                                        />
+                                        <Text className="text-white ml-2">
+                                            {item}
+                                        </Text>
+                                    </TouchableOpacity>
+
+                                    <TouchableOpacity
+                                        onPress={() => removeHistoryItem(item)}
+                                    >
+                                        <Ionicons
+                                            name="close"
+                                            size={18}
+                                            color="gray"
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+                            ))}
+                        </View>
+                    )}
 
                 {/* LOADING */}
                 {loading && (
@@ -180,7 +252,7 @@ export default function SearchScreen() {
                         {/* Tracks */}
                         {result.tracks?.items?.length > 0 && (
                             <>
-                                <Text className="text-white text-lg font-semibold mb-3 mt-5">
+                                <Text className="text-white text-lg font-semibold mt-5 mb-3">
                                     Tracks
                                 </Text>
 
@@ -211,16 +283,16 @@ export default function SearchScreen() {
                     </View>
                 )}
 
-                {/* TRENDING - Chỉ hiện khi KHÔNG tìm kiếm */}
+                {/* TRENDING */}
                 {query.trim().length === 0 && (
                     <View className="mt-10">
                         <Text className="text-white text-lg font-semibold mb-3">
                             🔥 Đề xuất
                         </Text>
+
                         <ScrollView
                             horizontal
                             showsHorizontalScrollIndicator={false}
-                            contentContainerStyle={{ paddingRight: 16 }}
                         >
                             {trendingArtists.map((artist, index) => (
                                 <TouchableOpacity
@@ -253,12 +325,13 @@ export default function SearchScreen() {
                     </View>
                 )}
 
-                {/* BROWSE - Chỉ hiện khi KHÔNG tìm kiếm */}
+                {/* BROWSE */}
                 {query.trim().length === 0 && (
                     <View className="mt-8 mb-10">
                         <Text className="text-white text-lg font-semibold mb-3">
                             Browse
                         </Text>
+
                         <View className="flex-row flex-wrap justify-between">
                             {categories.map((cat, index) => (
                                 <TouchableOpacity
