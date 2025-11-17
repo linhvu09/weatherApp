@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import React from "react";
 import {
     FlatList,
@@ -47,8 +48,25 @@ const data: AlbumData[] = [
 ];
 
 function AlbumItem({ item }: { item: AlbumData }) {
+    const router = useRouter();
+
+    const handlePress = () => {
+        const imageUri =
+            typeof item.image === "number" ? item.image : item.image.uri;
+
+        router.push({
+            pathname: `/(tabs)/home/album/${item.id}` as any,
+            params: {
+                albumTitle: item.title,
+                subtitle: item.subtitle,
+                image: imageUri,
+            },
+        });
+    };
+
     return (
         <TouchableOpacity
+            onPress={handlePress}
             style={{ width: CARD_WIDTH, height: CARD_HEIGHT }}
             className="mr-3 rounded-3xl overflow-hidden relative"
         >
