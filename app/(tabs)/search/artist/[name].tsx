@@ -1,61 +1,51 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
+import {
+    View,
+    Text,
+    Image,
+    TouchableOpacity,
+    ScrollView,
+    ActivityIndicator,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { useState, useEffect } from "react";
+import { artistService } from "@/services/artist/artist.service";
+import type { SimplifiedAlbumObject } from "@/types/artist";
 
 export default function ArtistDetail() {
     const router = useRouter();
-    const { name, img } = useLocalSearchParams<{ name: string; img: string }>();
+    const { name, img, id } = useLocalSearchParams<{
+        name: string;
+        img: string;
+        id: string;
+    }>();
 
-    // Dữ liệu bài hát mẫu (sau này bạn có thể fetch theo artist.name)
-    const songs = [
-        {
-            title: "Bài hát 1",
-            album: `${name} - Album 1`,
-            cover: "https://upload.wikimedia.org/wikipedia/en/2/28/Maroon_5_Misery.jpg",
-        },
-        {
-            title: "Bài hát 2",
-            album: `${name} - Album 2`,
-            cover: "https://upload.wikimedia.org/wikipedia/en/6/67/Maroon_5_-_Overexposed.png",
-        },
-        {
-            title: "Bài hát 3",
-            album: `${name} - Album 3`,
-            cover: "https://upload.wikimedia.org/wikipedia/en/5/53/Maroon_5_V_%28Official_Album_Cover%29.png",
-        },
-        {
-            title: "Bài hát 3",
-            album: `${name} - Album 3`,
-            cover: "https://upload.wikimedia.org/wikipedia/en/5/53/Maroon_5_V_%28Official_Album_Cover%29.png",
-        },
-        {
-            title: "Bài hát 3",
-            album: `${name} - Album 3`,
-            cover: "https://upload.wikimedia.org/wikipedia/en/5/53/Maroon_5_V_%28Official_Album_Cover%29.png",
-        },
-        {
-            title: "Bài hát 3",
-            album: `${name} - Album 3`,
-            cover: "https://upload.wikimedia.org/wikipedia/en/5/53/Maroon_5_V_%28Official_Album_Cover%29.png",
-        },
-        {
-            title: "Bài hát 3",
-            album: `${name} - Album 3`,
-            cover: "https://upload.wikimedia.org/wikipedia/en/5/53/Maroon_5_V_%28Official_Album_Cover%29.png",
-        },
-        {
-            title: "Bài hát 3",
-            album: `${name} - Album 3`,
-            cover: "https://upload.wikimedia.org/wikipedia/en/5/53/Maroon_5_V_%28Official_Album_Cover%29.png",
-        },
-        {
-            title: "Bài hát 3",
-            album: `${name} - Album 3`,
-            cover: "https://upload.wikimedia.org/wikipedia/en/5/53/Maroon_5_V_%28Official_Album_Cover%29.png",
-        },
-    ];
+    const [albums, setAlbums] = useState<SimplifiedAlbumObject[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (id) {
+            loadArtistAlbums();
+        }
+    }, [id]);
+
+    const loadArtistAlbums = async () => {
+        try {
+            setLoading(true);
+            const response = await artistService.getArtistAlbums({
+                id: id,
+                include_groups: "album,single",
+                limit: 50,
+            });
+            setAlbums(response.items);
+        } catch (error) {
+            console.error("Error loading artist albums:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <SafeAreaView className="flex-1 bg-black">
@@ -117,35 +107,55 @@ export default function ArtistDetail() {
                         <Text className="text-white text-lg font-semibold">
                             Popular releases
                         </Text>
-                        <Text className="text-gray-400 text-sm">See more</Text>
                     </View>
 
-                    {songs.map((song, i) => (
-                        <TouchableOpacity
-                            key={i}
-                            className="flex-row items-center mb-4"
-                            activeOpacity={0.7}
-                        >
-                            <Image
-                                source={{ uri: song.cover }}
-                                className="w-14 h-14 rounded-md mr-3"
-                            />
-                            <View className="flex-1">
-                                <Text className="text-white text-base font-medium">
-                                    {song.title}
-                                </Text>
-                                <Text className="text-gray-400 text-xs mt-1">
-                                    {song.album}
-                                </Text>
-                            </View>
-                            <Ionicons
-                                name="ellipsis-vertical"
-                                size={18}
-                                color="gray"
-                                className="ml-auto"
-                            />
-                        </TouchableOpacity>
-                    ))}
+                    {loading ? (
+                        <ActivityIndicator
+                            size="large"
+                            color="#1DB954"
+                            className="mt-10"
+                        />
+                    ) : albums.length > 0 ? (
+                        albums.map((album, i) => (
+                            <TouchableOpacity
+                                key={album.id}
+                                className="flex-row items-center mb-4"
+                                activeOpacity={0.7}
+                            >
+                                <Image
+                                    source={{
+                                        uri:
+                                            album.images[0]?.url ||
+                                            "https://via.placeholder.com/100",
+                                    }}
+                                    className="w-14 h-14 rounded-md mr-3"
+                                />
+                                <View className="flex-1">
+                                    <Text
+                                        className="text-white text-base font-medium"
+                                        numberOfLines={1}
+                                    >
+                                        {album.name}
+                                    </Text>
+                                    <Text className="text-gray-400 text-xs mt-1">
+                                        {album.album_type} •{" "}
+                                        {album.release_date.split("-")[0]} •{" "}
+                                        {album.total_tracks} tracks
+                                    </Text>
+                                </View>
+                                <Ionicons
+                                    name="ellipsis-vertical"
+                                    size={18}
+                                    color="gray"
+                                    className="ml-auto"
+                                />
+                            </TouchableOpacity>
+                        ))
+                    ) : (
+                        <Text className="text-gray-400 text-center mt-10">
+                            No releases found
+                        </Text>
+                    )}
                 </View>
             </ScrollView>
         </SafeAreaView>
