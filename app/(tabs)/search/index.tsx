@@ -1,5 +1,6 @@
 import { useSearch } from "@/hooks/useSearch";
 import { useSearchHistory } from "@/hooks/useSearchHistory";
+import { artistService } from "@/services/artist/artist.service";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
