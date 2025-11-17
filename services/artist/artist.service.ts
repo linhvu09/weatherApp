@@ -5,6 +5,28 @@ import type {
 import { apiClient } from "../api-client";
 
 class ArtistService {
+    /**
+     * Get top Vietnamese artists
+     */
+    async getTopArtists(limit: number = 10): Promise<any[]> {
+        try {
+            // Thử tìm bằng từ khóa "vietnam" thay vì genre
+            const response = await apiClient.get("/search", {
+                params: {
+                    q: "vietnam",
+                    type: "artist",
+                    limit: limit,
+                    market: "VN",
+                },
+            });
+
+            return response.data.artists?.items || [];
+        } catch (error) {
+            console.error("Lỗi khi tải top artists:", error);
+            return [];
+        }
+    }
+
     async getArtistAlbums(
         params: GetArtistAlbumsParams,
     ): Promise<GetArtistAlbumsResponse> {
