@@ -50,26 +50,32 @@ export default function SearchScreen() {
 
     const trendingArtists = [
         {
+            id: "5dfZ5uSmzR7VQK0udbAVpf",
             name: "Sơn Tùng M-TP",
             img: "https://5sfashion.vn/storage/upload/images/ckeditor/4KG2VgKFDJWqdtg4UMRqk5CnkJVoCpe5QMd20Pf7.jpg",
         },
         {
+            id: "3y2cIKLjiOlp1Jz5PjtGvD",
             name: "Hà Anh Tuấn",
             img: "https://yt3.googleusercontent.com/enG03m1WKMfZL8ym-8fbtPPDA2uGOX3t1NIWVxltWdJHTmYKsT7LeWYbtrNI7c-PZlB2IqyaqA=s900-c-k-c0x00ffffff-no-rj",
         },
         {
+            id: "3ViaDDQ452i8wPFF7RDHcx",
             name: "Mr.Siro",
             img: "https://i.scdn.co/image/ab6761610000e5eb4371fb198b011bb666a3bfde",
         },
         {
+            id: "4MCBNaCdIRRGIUD1fZtHRo",
             name: "Nguyễn Hùng",
             img: "https://photo-resize-zmp3.zadn.vn/w360_r1x1_jpeg/avatars/6/4/6/8/6468d72b31f09ac99990c94eff16afca.jpg",
         },
         {
+            id: "7FBcuc1gsnv6Y1nwFtNRCb",
             name: "Vũ",
             img: "https://trixie.com.vn/media/images/article/94610382/vu-p-16067234297342144615946.png",
         },
         {
+            id: "3y2cIKLjiOlp1Jz5PjtGvE",
             name: "Erik",
             img: "https://images2.thanhnien.vn/zoom/686_429/528068263637045248/2024/7/8/erik-4-17204277188992053578208-0-0-900-1440-crop-17204281126641794292020.jpg",
         },
@@ -228,6 +234,7 @@ export default function SearchScreen() {
                                                 pathname:
                                                     "/(tabs)/search/artist/[name]" as any,
                                                 params: {
+                                                    id: artist.id,
                                                     name: artist.name,
                                                     img: artist.images?.[0]
                                                         ?.url,
@@ -303,6 +310,7 @@ export default function SearchScreen() {
                                             pathname:
                                                 "/(tabs)/search/artist/[name]" as any,
                                             params: {
+                                                id: artist.id,
                                                 name: artist.name,
                                                 img: artist.img,
                                             },
