@@ -1,81 +1,74 @@
 import type {
-  Artist,
-  ArtistSearchParams,
-  ArtistSearchResponse,
-  GetArtistsParams,
-  GetArtistsResponse,
+    GetArtistAlbumsParams,
+    GetArtistAlbumsResponse,
 } from "@/types/artist";
 import { apiClient } from "../api-client";
 
 class ArtistService {
-  async getArtists(params: GetArtistsParams): Promise<Artist[]> {
-    if (params.ids.length === 0 || params.ids.length > 40) {
-      throw new Error("Danh sách ID phải có từ 1 đến 40 mục");
+    async getArtistAlbums(
+        params: GetArtistAlbumsParams,
+    ): Promise<GetArtistAlbumsResponse> {
+        if (!params.id || params.id.trim().length === 0) {
+            throw new Error("ID nghệ sĩ không được để trống");
+        }
+
+        // Validate limit
+        if (params.limit !== undefined) {
+            if (params.limit < 1 || params.limit > 50) {
+                throw new Error("Limit phải từ 1 đến 50");
+            }
+        }
+
+        // Validate offset
+        if (params.offset !== undefined && params.offset < 0) {
+            throw new Error("Offset không được âm");
+        }
+
+        // Validate include_groups
+        if (params.include_groups) {
+            const validGroups = [
+                "album",
+                "single",
+                "appears_on",
+                "compilation",
+            ];
+            const groups = params.include_groups
+                .split(",")
+                .map((g) => g.trim());
+            const invalidGroups = groups.filter(
+                (g) => !validGroups.includes(g),
+            );
+
+            if (invalidGroups.length > 0) {
+                throw new Error(
+                    `Include_groups không hợp lệ: ${invalidGroups.join(", ")}. ` +
+                        `Chỉ chấp nhận: ${validGroups.join(", ")}`,
+                );
+            }
+        }
+
+        try {
+            const response = await apiClient.get<GetArtistAlbumsResponse>(
+                `/artists/${params.id}/albums`,
+                {
+                    params: {
+                        include_groups: params.include_groups,
+                        market: params.market,
+                        limit: params.limit ?? 20,
+                        offset: params.offset ?? 0,
+                    },
+                },
+            );
+
+            return response.data;
+        } catch (error: any) {
+            if (error.response?.status === 404) {
+                throw new Error("Không tìm thấy nghệ sĩ");
+            }
+            console.error("Lỗi khi tải albums của nghệ sĩ:", error);
+            throw error;
+        }
     }
-
-    try {
-      const response = await apiClient.get<GetArtistsResponse>("/artist", {
-        params: {
-          ids: params.ids,
-        },
-        paramsSerializer: {
-          indexes: null,
-        },
-      });
-
-      return response.data.content;
-    } catch (error) {
-      console.error("Lỗi khi tải thông tin nghệ sĩ:", error);
-      throw error;
-    }
-  }
-
-  async searchArtists(
-    params: ArtistSearchParams,
-  ): Promise<ArtistSearchResponse> {
-    if (!params.searchText || params.searchText.trim().length === 0) {
-      throw new Error("Vui lòng nhập từ khóa tìm kiếm");
-    }
-
-    if (params.searchText.length > 1000) {
-      throw new Error("Từ khóa tìm kiếm không được vượt quá 1000 ký tự");
-    }
-
-    try {
-      const response = await apiClient.get<ArtistSearchResponse>(
-        "/artist/search",
-        {
-          params: {
-            searchText: params.searchText,
-            page: params.page ?? 0,
-            size: params.size ?? 25,
-          },
-        },
-      );
-
-      return response.data;
-    } catch (error) {
-      console.error("Lỗi khi tìm kiếm nghệ sĩ:", error);
-      throw error;
-    }
-  }
-
-  async getArtistDetail(id: string): Promise<Artist> {
-    if (!id || id.trim().length === 0) {
-      throw new Error("ID nghệ sĩ không được để trống");
-    }
-
-    try {
-      const response = await apiClient.get<Artist>(`/artist/${id}`);
-      return response.data;
-    } catch (error: any) {
-      if (error.response?.status === 404) {
-        throw new Error("Không tìm thấy nghệ sĩ");
-      }
-      console.error("Lỗi khi tải chi tiết nghệ sĩ:", error);
-      throw error;
-    }
-  }
 }
 
 export const artistService = new ArtistService();

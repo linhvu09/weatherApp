@@ -1,8 +1,9 @@
 import axios from "axios";
-import { encode as btoa } from "react-native-base64";
+import { encode } from "base-64";
 
 const clientId = process.env.EXPO_PUBLIC_CLIENT_ID_SPOTIFY;
 const clientSecret = process.env.EXPO_PUBLIC_CLIENT_SECRET_SPOTIFY;
+
 if (!clientId || !clientSecret) {
     console.warn("Thiếu Spotify credentials trong .env");
 }
@@ -18,11 +19,13 @@ export async function getSpotifyToken(): Promise<string | null> {
     }
 
     if (!clientId || !clientSecret) {
+        console.error("Thiếu CLIENT_ID hoặc CLIENT_SECRET");
         return null;
     }
 
     try {
-        const authHeader = btoa(`${clientId}:${clientSecret}`);
+        const credentials = `${clientId}:${clientSecret}`;
+        const authHeader = encode(credentials);
 
         const res = await axios.post(
             "https://accounts.spotify.com/api/token",

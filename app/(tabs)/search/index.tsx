@@ -1,17 +1,22 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useState } from "react";
 import React from "react";
 import {
     Image,
-    Pressable,
     ScrollView,
     Text,
     TouchableOpacity,
     View,
+    TextInput,
+    ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useSearch } from "@/hooks/useSearch";
 
 export default function SearchScreen() {
+    const [query, setQuery] = useState("");
+    const { result, loading, onSearch } = useSearch();
     const router = useRouter();
 
     const trendingArtists = [
@@ -87,20 +92,108 @@ export default function SearchScreen() {
     return (
         <SafeAreaView className="flex-1 bg-[#080808]">
             <ScrollView className="flex-1 px-4">
-                {/* Ô tìm kiếm */}
-                <Pressable onPress={() => router.push("./search/history")}>
-                    <View className="flex-row items-center bg-neutral-900 rounded-full px-4 py-2 mt-6">
-                        <Ionicons name="search" size={30} color="gray" />
-                        <Text className="ml-2 text-gray-400 flex-1">
-                            Search songs, artist, album or playlist
-                        </Text>
+                {/* Ô tìm kiếm thật sự */}
+                <View className="flex-row items-center bg-neutral-900 rounded-full px-4 py-2 mt-6">
+                    <Ionicons name="search" size={24} color="gray" />
+                    <TextInput
+                        placeholder="Search songs, artist, album or playlist..."
+                        placeholderTextColor="gray"
+                        value={query}
+                        onChangeText={setQuery}
+                        onSubmitEditing={() => onSearch(query)}
+                        className="ml-2 flex-1 text-white"
+                    />
+                </View>
+
+                {/* Loading */}
+                {loading && (
+                    <View className="mt-4">
+                        <ActivityIndicator color="white" />
                     </View>
-                </Pressable>
+                )}
+
+                {/* Kết quả Search */}
+                {result && (
+                    <View className="mt-5">
+                        {/* ARTISTS */}
+                        {result.artists?.items?.length > 0 && (
+                            <>
+                                <Text className="text-white text-lg font-semibold mb-3">
+                                    Artists
+                                </Text>
+
+                                {result.artists.items.map((artist: any) => (
+                                    <TouchableOpacity
+                                        key={artist.id}
+                                        className="flex-row items-center mb-4"
+                                        onPress={() =>
+                                            router.push({
+                                                pathname:
+                                                    "/(tabs)/search/artist/[name]" as any,
+                                                params: {
+                                                    name: artist.name,
+                                                    img: artist.images?.[0]
+                                                        ?.url,
+                                                },
+                                            })
+                                        }
+                                    >
+                                        <Image
+                                            source={{
+                                                uri: artist.images?.[0]?.url,
+                                            }}
+                                            className="w-16 h-16 rounded-full mr-4"
+                                        />
+                                        <Text className="text-white text-base">
+                                            {artist.name}
+                                        </Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </>
+                        )}
+
+                        {/* TRACKS */}
+                        {result.tracks?.items?.length > 0 && (
+                            <View className="mt-6">
+                                <Text className="text-white text-lg font-semibold mb-3">
+                                    Tracks
+                                </Text>
+
+                                {result.tracks.items.map((track: any) => (
+                                    <View
+                                        key={track.id}
+                                        className="flex-row items-center mb-4"
+                                    >
+                                        <Image
+                                            source={{
+                                                uri: track.album.images?.[0]
+                                                    ?.url,
+                                            }}
+                                            className="w-14 h-14 rounded-lg mr-4"
+                                        />
+                                        <View>
+                                            <Text className="text-white text-base">
+                                                {track.name}
+                                            </Text>
+                                            <Text className="text-gray-400 text-sm">
+                                                {track.artists[0].name}
+                                            </Text>
+                                        </View>
+                                    </View>
+                                ))}
+                            </View>
+                        )}
+                    </View>
+                )}
+
+                {/* ======================= */}
+                {/*      PHẦN CŨ GIỮ NGUYÊN */}
+                {/* ======================= */}
 
                 {/* Trending Artists */}
-                <View className="mt-5">
+                <View className="mt-8">
                     <Text className="text-white text-lg font-semibold mb-3">
-                        🔥 Trending artists
+                        🔥 Đề xuất
                     </Text>
                     <ScrollView
                         horizontal
