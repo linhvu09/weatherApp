@@ -6,45 +6,23 @@ import { apiClient } from "../api-client";
 
 class ArtistService {
     /**
-     * Get top/popular artists using search API
-     * Alternative to /me/top/artists which requires user OAuth
+     * Get top Vietnamese artists
      */
     async getTopArtists(limit: number = 10): Promise<any[]> {
         try {
-            // Use popular genres to find diverse popular artists
-            const genres = ['pop', 'rock', 'hip-hop', 'r-n-b', 'indie'];
-            const randomGenre = genres[Math.floor(Math.random() * genres.length)];
-            
+            // Thử tìm bằng từ khóa "vietnam" thay vì genre
             const response = await apiClient.get("/search", {
                 params: {
-                    q: `genre:${randomGenre}`,
+                    q: "vietnam",
                     type: "artist",
                     limit: limit,
-                    market: 'US'
+                    market: "VN",
                 },
             });
 
             return response.data.artists?.items || [];
         } catch (error) {
             console.error("Lỗi khi tải top artists:", error);
-            return [];
-        }
-    }
-
-    async getTrendingArtists(limit: number = 10): Promise<any[]> {
-        try {
-            const response = await apiClient.get("/search", {
-                params: {
-                    q: "genre:pop",
-                    type: "artist",
-                    limit: limit,
-                    market: 'US'
-                },
-            });
-
-            return response.data.artists?.items || [];
-        } catch (error) {
-            console.error("Lỗi khi tải nghệ sĩ đề xuất:", error);
             return [];
         }
     }

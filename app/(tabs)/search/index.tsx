@@ -35,7 +35,7 @@ export default function SearchScreen() {
     const loadTrendingArtists = async () => {
         try {
             setLoadingTrending(true);
-            const artists = await artistService.getTrendingArtists(10);
+            const artists = await artistService.getTopArtists(10);
 
             setTrendingArtists(artists);
         } catch (error) {
