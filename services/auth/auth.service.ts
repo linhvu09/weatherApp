@@ -6,6 +6,7 @@ import type {
 } from "@/types/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as WebBrowser from "expo-web-browser";
+import { Alert } from "react-native";
 import { userApiClient } from "../api-user-be";
 
 WebBrowser.maybeCompleteAuthSession();
@@ -101,7 +102,8 @@ class AuthService {
 
                 return { token, user };
             } else if (result.type === "cancel") {
-                throw new Error("Đã hủy đăng nhập");
+                Alert.alert("Đã hủy đăng nhập");
+                return null as any;
             } else {
                 throw new Error("Đăng nhập Google thất bại");
             }
