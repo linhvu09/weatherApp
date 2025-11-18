@@ -91,11 +91,6 @@ class ArtistService {
             throw error;
         }
     }
-
-    /**
-     * Get artist's top tracks (most popular songs)
-     * These tracks are more likely to have preview URLs
-     */
 }
 
 export const artistService = new ArtistService();
