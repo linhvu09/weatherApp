@@ -1,152 +1,153 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import React from "react";
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useState } from "react";
 import {
-    SafeAreaView,
-    useSafeAreaInsets,
-} from "react-native-safe-area-context";
+    ActivityIndicator,
+    Image,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-// --- Dữ liệu Bài hát mô phỏng ---
-interface SongData {
-    id: string;
-    title: string;
-    artist: string;
-    duration: string;
-    image?: string;
-}
+import { albumService } from "@/services/album/album.service";
+import { NewReleaseTrack } from "@/types/album";
 
-const MOCK_SONGS: SongData[] = [
-    {
-        id: "s1",
-        title: "Blinding Lights",
-        artist: "The Weeknd",
-        duration: "3:20",
-        image: "https://picsum.photos/id/10/200/200",
-    },
-    {
-        id: "s2",
-        title: "Heat Waves",
-        artist: "Glass Animals",
-        duration: "3:58",
-        image: "https://picsum.photos/id/20/200/200",
-    },
-    {
-        id: "s3",
-        title: "Levitating",
-        artist: "Dua Lipa",
-        duration: "3:23",
-        image: "https://picsum.photos/id/30/200/200",
-    },
-    {
-        id: "s4",
-        title: "Good 4 u",
-        artist: "Olivia Rodrigo",
-        duration: "2:58",
-        image: "https://picsum.photos/id/40/200/200",
-    },
-    {
-        id: "s5",
-        title: "Stay",
-        artist: "The Kid LAROI, Justin Bieber",
-        duration: "2:21",
-        image: "https://picsum.photos/id/50/200/200",
-    },
-    {
-        id: "s6",
-        title: "Industry Baby",
-        artist: "Lil Nas X, Jack Harlow",
-        duration: "3:32",
-        image: "https://picsum.photos/id/60/200/200",
-    },
-    {
-        id: "s7",
-        title: "Peaches",
-        artist: "Justin Bieber ft. Daniel Caesar, Giveon",
-        duration: "3:18",
-        image: "https://picsum.photos/id/70/200/200",
-    },
-    {
-        id: "s8",
-        title: "Kiss Me More",
-        artist: "Doja Cat ft. SZA",
-        duration: "3:28",
-        image: "https://picsum.photos/id/80/200/200",
-    },
-    {
-        id: "s9",
-        title: "Happier Than Ever",
-        artist: "Billie Eilish",
-        duration: "4:58",
-        image: "https://picsum.photos/id/90/200/200",
-    },
-    {
-        id: "s10",
-        title: "Shivers",
-        artist: "Ed Sheeran",
-        duration: "3:27",
-        image: "https://picsum.photos/id/100/200/200",
-    },
+const SongItem: React.FC<{ item: NewReleaseTrack }> = ({ item }) => {
+    const handleTrackPress = () => {};
+    const handleMenuPress = () => {};
 
-    // 10 bài thêm, auto picsum id
-    ...Array.from({ length: 10 }, (_, i) => ({
-        id: `s${i + 11}`,
-        title: `Bài hát ${i + 11}`,
-        artist: `Nghệ sĩ ${i + 11}`,
-        duration: "3:00",
-        image: `https://picsum.photos/id/${110 + i}/200/200`,
-    })),
-];
-
-// Component SongItem
-const SongItem: React.FC<{ item: any }> = ({ item }) => (
-    <View
-        style={{
-            flexDirection: "row",
-            alignItems: "center",
-            paddingVertical: 8,
-            paddingHorizontal: 16,
-        }}
-    >
-        <Image
-            source={{
-                uri:
-                    item.image ||
-                    "https://via.placeholder.com/80x80.png?text=Song",
+    return (
+        <View
+            style={{
+                flexDirection: "row",
+                alignItems: "center",
+                paddingHorizontal: 16,
             }}
-            style={{ width: 48, height: 48, borderRadius: 8, marginRight: 12 }}
-        />
-        <View style={{ flex: 1 }}>
-            <Text
-                style={{ color: "white", fontSize: 16, fontWeight: "600" }}
-                numberOfLines={1}
+        >
+            <TouchableOpacity
+                onPress={handleTrackPress}
+                style={{
+                    flex: 1,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    paddingVertical: 8,
+                }}
             >
-                {item.title}
-            </Text>
-            <Text style={{ color: "#888", fontSize: 14 }} numberOfLines={1}>
-                {item.artist}
-            </Text>
+                <Image
+                    source={{
+                        uri:
+                            item.albumImageUrl ||
+                            "https://via.placeholder.com/80x80.png?text=New",
+                    }}
+                    style={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: 8,
+                        marginRight: 12,
+                    }}
+                />
+                <View style={{ flex: 1 }}>
+                    <Text
+                        style={{
+                            color: "white",
+                            fontSize: 16,
+                            fontWeight: "600",
+                        }}
+                        numberOfLines={1}
+                    >
+                        {item.name}
+                    </Text>
+                    <Text
+                        style={{ color: "#888", fontSize: 14 }}
+                        numberOfLines={1}
+                    >
+                        {item.artistNames} • {item.albumName}
+                    </Text>
+                </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+                onPress={handleMenuPress}
+                style={{ paddingVertical: 8, paddingLeft: 12 }}
+            >
+                <Ionicons name="ellipsis-vertical" size={20} color="gray" />
+            </TouchableOpacity>
         </View>
-        <Ionicons name="ellipsis-vertical" size={20} color="gray" />
-    </View>
-);
+    );
+};
 
 export default function AlbumDetailScreen() {
     const params = useLocalSearchParams();
     const { albumTitle, subtitle, image } = params;
 
-    const insets = useSafeAreaInsets();
+    const [albumSongs, setAlbumSongs] = useState<NewReleaseTrack[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    const albumSongs = MOCK_SONGS; // dữ liệu bài hát
+    useEffect(() => {
+        const fetchNewSongs = async () => {
+            try {
+                const songs = await albumService.fetchNewReleaseTracks();
+                setAlbumSongs(songs);
+                setError(null);
+            } catch (err: any) {
+                console.error("Lỗi khi tải Playlist Ảo:", err);
+                setError(
+                    "Không thể tải dữ liệu bài hát mới. Vui lòng thử lại.",
+                );
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchNewSongs();
+    }, []);
+
+    if (isLoading) {
+        return (
+            <SafeAreaView
+                style={{
+                    flex: 1,
+                    backgroundColor: "black",
+                    justifyContent: "center",
+                    alignItems: "center",
+                }}
+            >
+                <ActivityIndicator size="large" color="#1DB954" />
+                <Text style={{ color: "white", marginTop: 10 }}>
+                    Đang tải Playlist Mới...
+                </Text>
+            </SafeAreaView>
+        );
+    }
+
+    if (error) {
+        return (
+            <SafeAreaView
+                style={{
+                    flex: 1,
+                    backgroundColor: "black",
+                    justifyContent: "center",
+                    alignItems: "center",
+                }}
+            >
+                <Text
+                    style={{ color: "red", textAlign: "center", padding: 20 }}
+                >
+                    {error}
+                </Text>
+            </SafeAreaView>
+        );
+    }
 
     return (
         <SafeAreaView
             style={{ flex: 1, backgroundColor: "black" }}
             edges={["bottom"]}
         >
-            {/* Header + Nút Play */}
             <View>
-                {/* Ảnh bìa */}
                 <View style={{ position: "relative" }}>
                     <Image
                         source={{ uri: image as string }}
@@ -158,7 +159,6 @@ export default function AlbumDetailScreen() {
                         resizeMode="cover"
                     />
 
-                    {/* Overlay tối trong suốt */}
                     <View
                         style={{
                             position: "absolute",
@@ -171,12 +171,11 @@ export default function AlbumDetailScreen() {
                         }}
                     />
 
-                    {/* Icon quay lại sát cạnh trên */}
                     <TouchableOpacity
                         onPress={() => router.back()}
                         style={{
                             position: "absolute",
-                            top: 8, // đảm bảo không bị notch che
+                            top: 8,
                             left: 16,
                             backgroundColor: "rgba(0,0,0,0.5)",
                             borderRadius: 999,
@@ -186,7 +185,6 @@ export default function AlbumDetailScreen() {
                         <Ionicons name="arrow-back" size={24} color="white" />
                     </TouchableOpacity>
 
-                    {/* Title + Subtitle */}
                     <View
                         style={{ position: "absolute", bottom: 16, left: 16 }}
                     >
@@ -212,18 +210,16 @@ export default function AlbumDetailScreen() {
                     </View>
                 </View>
 
-                {/* Nút Play + Lưu + 3 chấm */}
                 <View
                     style={{
                         flexDirection: "row",
-                        justifyContent: "flex-end", // căn phải
+                        justifyContent: "flex-end",
                         alignItems: "center",
                         marginTop: 14,
-                        gap: 6, // khoảng cách giữa các icon
-                        paddingHorizontal: 16, // cách mép phải
+                        gap: 6,
+                        paddingHorizontal: 16,
                     }}
                 >
-                    {/* Icon lưu playlist */}
                     <TouchableOpacity>
                         <Ionicons
                             name="heart-outline"
@@ -232,7 +228,6 @@ export default function AlbumDetailScreen() {
                         />
                     </TouchableOpacity>
 
-                    {/* Icon 3 chấm */}
                     <TouchableOpacity>
                         <Ionicons
                             name="ellipsis-vertical"
@@ -241,7 +236,6 @@ export default function AlbumDetailScreen() {
                         />
                     </TouchableOpacity>
 
-                    {/* Icon Play */}
                     <TouchableOpacity>
                         <Ionicons
                             name="play-circle-sharp"
@@ -252,7 +246,6 @@ export default function AlbumDetailScreen() {
                 </View>
             </View>
 
-            {/* ScrollView chiếm phần còn lại */}
             <View style={{ flex: 1, marginTop: 10 }}>
                 <ScrollView showsVerticalScrollIndicator={false}>
                     {albumSongs.map((song) => (
