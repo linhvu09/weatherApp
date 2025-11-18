@@ -1,5 +1,8 @@
 import { artistService } from "@/services/artist/artist.service";
 import type { SimplifiedAlbumObject } from "@/types/artist";
+
+import { usePlayer } from "@/contexts/PlayerContext";
+import { PlayerBar } from "@/components/player/PlayerBar";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -21,11 +24,13 @@ export default function ArtistDetail() {
         img: string;
         id: string;
     }>();
+    const { playTrack } = usePlayer();
 
     const [albums, setAlbums] = useState<SimplifiedAlbumObject[]>([]);
     const [loading, setLoading] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);
     const [offset, setOffset] = useState(0);
+    const [loadingTrack, setLoadingTrack] = useState(false);
     const limit = 20;
     const maxTotal = 50;
 
@@ -70,6 +75,7 @@ export default function ArtistDetail() {
             key={item.id}
             className="flex-row items-center mb-4"
             activeOpacity={0.7}
+            disabled={loadingTrack}
         >
             <Image
                 source={{
@@ -91,12 +97,11 @@ export default function ArtistDetail() {
                     {item.total_tracks} tracks
                 </Text>
             </View>
-            <Ionicons
-                name="ellipsis-vertical"
-                size={18}
-                color="gray"
-                className="ml-auto"
-            />
+            {loadingTrack ? (
+                <ActivityIndicator size="small" color="#1DB954" />
+            ) : (
+                <Ionicons name="play-circle" size={32} color="#1DB954" />
+            )}
         </TouchableOpacity>
     );
 
@@ -173,6 +178,9 @@ export default function ArtistDetail() {
                     }
                 />
             )}
+
+            {/* Player Bar */}
+            <PlayerBar />
         </SafeAreaView>
     );
 }
