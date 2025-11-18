@@ -1,18 +1,18 @@
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
-import {
-    View,
-    Text,
-    Image,
-    TouchableOpacity,
-    ActivityIndicator,
-    FlatList,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
-import { useState, useEffect } from "react";
 import { artistService } from "@/services/artist/artist.service";
 import type { SimplifiedAlbumObject } from "@/types/artist";
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import {
+    ActivityIndicator,
+    FlatList,
+    Image,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ArtistDetail() {
     const router = useRouter();

@@ -95,7 +95,7 @@ export default function SplashCustom() {
 
     return (
         <ImageBackground
-            source={require("@/assets/images/ảnh music.jpeg")}
+            source={require("@/assets/images/ảnh et.jpeg")}
             className="flex-1"
             resizeMode="cover"
         >

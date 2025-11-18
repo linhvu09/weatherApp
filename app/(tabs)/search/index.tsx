@@ -1,20 +1,20 @@
+import { useSearch } from "@/hooks/useSearch";
+import { useSearchHistory } from "@/hooks/useSearchHistory";
+import { artistService } from "@/services/artist/artist.service";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
     ActivityIndicator,
     Image,
+    PanResponder,
     ScrollView,
     Text,
     TextInput,
     TouchableOpacity,
     View,
-    PanResponder,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useSearch } from "@/hooks/useSearch";
-import { useSearchHistory } from "@/hooks/useSearchHistory";
-import { artistService } from "@/services/artist/artist.service";
 
 export default function SearchScreen() {
     const router = useRouter();
