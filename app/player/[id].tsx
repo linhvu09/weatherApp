@@ -1,7 +1,7 @@
 import { usePlayer } from "@/contexts/PlayerContext";
 import { Ionicons } from "@expo/vector-icons";
 import Slider from "@react-native-community/slider";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import {
     FlatList,
@@ -33,6 +33,7 @@ export default function PlayerScreen() {
     } = usePlayer();
 
     const [showQueue, setShowQueue] = useState(false);
+    const { id } = useLocalSearchParams();
 
     if (!currentTrack) {
         router.back();

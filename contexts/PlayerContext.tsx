@@ -1,8 +1,8 @@
 import type { PlayerState, Track } from "@/types/player";
+import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from "expo-av";
 import { createContext, useCallback, useContext, useState } from "react";
-
 interface PlayerContextValue extends PlayerState {
-    playTrack: (track: Track | null) => void; // ✅ Cho phép null
+    playTrack: (track: Track | null) => void;
     togglePlayPause: () => void;
     playNext: () => void;
     playPrevious: () => void;
@@ -11,7 +11,7 @@ interface PlayerContextValue extends PlayerState {
     removeFromQueue: (trackId: string) => void;
     toggleShuffle: () => void;
     toggleRepeat: () => void;
-    clearPlayer: () => void; // ✅ Thêm function clear
+    clearPlayer: () => void; // thêm function clear
 }
 
 const PlayerContext = createContext<PlayerContextValue | null>(null);
@@ -25,36 +25,71 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     const [volume, setVolume] = useState(1);
     const [repeat, setRepeat] = useState<"off" | "track" | "context">("off");
     const [shuffle, setShuffle] = useState(false);
+    const [sound, setSound] = useState<Audio.Sound | null>(null);
 
-    const playTrack = useCallback((track: Track | null) => {
-        if (!track) {
-            setCurrentTrack(null);
-            setIsPlaying(false);
+    const playTrack = useCallback(
+        async (track: Track | null) => {
+            if (sound) {
+                await sound.unloadAsync();
+                setSound(null);
+            }
+            if (!track || !track.preview_url) {
+                setCurrentTrack(null);
+                setIsPlaying(false);
+                setPosition(0);
+                setDuration(0);
+                setQueue([]);
+                return;
+            }
+
+            setCurrentTrack(track);
+            setIsPlaying(true);
             setPosition(0);
-            setDuration(0);
-            setQueue([]);
-            return;
+            setDuration(track.duration_ms);
+
+            await Audio.setAudioModeAsync({
+                allowsRecordingIOS: false,
+                staysActiveInBackground: false,
+                playsInSilentModeIOS: true,
+                shouldDuckAndroid: true,
+                interruptionModeIOS: InterruptionModeIOS.DoNotMix,
+                interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
+                playThroughEarpieceAndroid: false,
+            });
+
+            const { sound: newSound } = await Audio.Sound.createAsync(
+                { uri: track.preview_url },
+                { shouldPlay: true },
+            );
+            await newSound.playAsync();
+
+            setSound(newSound);
+        },
+        [sound],
+    );
+
+    const clearPlayer = useCallback(async () => {
+        if (sound) {
+            await sound.unloadAsync();
+            setSound(null);
         }
-
-        console.log("✅ Playing track:", track.name);
-        setCurrentTrack(track);
-        setIsPlaying(true);
-        setPosition(0);
-        setDuration(track.duration_ms);
-    }, []);
-
-    const clearPlayer = useCallback(() => {
         setCurrentTrack(null);
         setIsPlaying(false);
         setPosition(0);
         setDuration(0);
         setQueue([]);
-    }, []);
+    }, [sound]);
 
-    const togglePlayPause = useCallback(() => {
-        console.log("⏯️ Toggle play/pause");
-        setIsPlaying((prev) => !prev);
-    }, []);
+    const togglePlayPause = useCallback(async () => {
+        if (!sound) return;
+        if (isPlaying) {
+            await sound.pauseAsync();
+            setIsPlaying(false);
+        } else {
+            await sound.playAsync();
+            setIsPlaying(true);
+        }
+    }, [sound, isPlaying]);
 
     const playNext = useCallback(() => {
         if (queue.length > 0) {
