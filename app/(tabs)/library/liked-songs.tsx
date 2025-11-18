@@ -34,6 +34,15 @@ const LIKED_SONGS: Song[] = [
         coverUrl: "https://picsum.photos/200/200?random=3",
         duration: 190000,
     },
+    {
+        id: "demo",
+        title: "Demo Song",
+        artist: "Demo Artist",
+        coverUrl: "https://picsum.photos/200/200?random=1",
+        duration: 180000,
+        preview_url:
+            "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", // demo mp3
+    },
 ];
 
 export default function LikedSongsScreen() {
@@ -57,7 +66,7 @@ export default function LikedSongsScreen() {
                 ],
             },
             duration_ms: song.duration,
-            preview_url: `https://example.com/preview/${song.id}`,
+            preview_url: song.preview_url,
             uri: `spotify:track:${song.id}`,
         };
 
@@ -76,13 +85,16 @@ export default function LikedSongsScreen() {
                     images: [{ url: s.coverUrl, height: 640, width: 640 }],
                 },
                 duration_ms: s.duration,
-                preview_url: `https://example.com/preview/${s.id}`,
+                preview_url: s.preview_url,
                 uri: `spotify:track:${s.id}`,
             });
         });
 
         playTrack(track);
-        router.push(`/player/${song.id}`);
+
+        setTimeout(() => {
+            router.push(`/player/${song.id}`);
+        }, 0);
     };
 
     return (
