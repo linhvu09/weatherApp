@@ -13,60 +13,61 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSearch } from "@/hooks/useSearch";
+import { useSearchHistory } from "@/hooks/useSearchHistory";
+import { artistService } from "@/services/artist/artist.service";
 
 export default function SearchScreen() {
     const router = useRouter();
     const [query, setQuery] = useState("");
+    const [focused, setFocused] = useState(false);
+    const [trendingArtists, setTrendingArtists] = useState<any[]>([]);
+    const [loadingTrending, setLoadingTrending] = useState(true);
 
+    const { history, addHistory, removeHistoryItem, clearHistory } =
+        useSearchHistory();
     const { result, loading, onSearch } = useSearch();
 
+    // Load trending artists khi component mount
     useEffect(() => {
+        loadTrendingArtists();
+    }, []);
+
+    const loadTrendingArtists = async () => {
+        try {
+            setLoadingTrending(true);
+            const artists = await artistService.getTopArtists(10);
+
+            setTrendingArtists(artists);
+        } catch (error) {
+            console.error("Error loading trending artists:", error);
+        } finally {
+            setLoadingTrending(false);
+        }
+    };
+
+    // SEARCH REALTIME – LƯU LỊCH SỬ CHỈ KHI CÓ TEXT
+    useEffect(() => {
+        if (query.trim().length === 0) return;
+
         const timeout = setTimeout(() => {
-            if (query.trim().length > 0) {
-                onSearch(query);
-            }
+            onSearch(query);
+            addHistory(query);
         }, 300);
 
         return () => clearTimeout(timeout);
     }, [query]);
 
-    // Vuốt sang trái để quay lại trang trước
+    // SWIPE BACK – CHỈ NHẬN VUỐT NGANG, HẠN CHẾ VUỐT CHÉO
     const panResponder = PanResponder.create({
-        onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 20,
+        onMoveShouldSetPanResponder: (_, g) => {
+            return Math.abs(g.dx) > 20 && Math.abs(g.dx) > Math.abs(g.dy);
+        },
         onPanResponderRelease: (_, g) => {
-            if (g.dx > 80) {
-                // Vuốt sang phải (swipe right)
+            if (g.dx > 80 && Math.abs(g.dy) < 30) {
                 router.back();
             }
         },
     });
-
-    const trendingArtists = [
-        {
-            name: "Sơn Tùng M-TP",
-            img: "https://5sfashion.vn/storage/upload/images/ckeditor/4KG2VgKFDJWqdtg4UMRqk5CnkJVoCpe5QMd20Pf7.jpg",
-        },
-        {
-            name: "Hà Anh Tuấn",
-            img: "https://yt3.googleusercontent.com/enG03m1WKMfZL8ym-8fbtPPDA2uGOX3t1NIWVxltWdJHTmYKsT7LeWYbtrNI7c-PZlB2IqyaqA=s900-c-k-c0x00ffffff-no-rj",
-        },
-        {
-            name: "Mr.Siro",
-            img: "https://i.scdn.co/image/ab6761610000e5eb4371fb198b011bb666a3bfde",
-        },
-        {
-            name: "Nguyễn Hùng",
-            img: "https://photo-resize-zmp3.zadn.vn/w360_r1x1_jpeg/avatars/6/4/6/8/6468d72b31f09ac99990c94eff16afca.jpg",
-        },
-        {
-            name: "Vũ",
-            img: "https://trixie.com.vn/media/images/article/94610382/vu-p-16067234297342144615946.png",
-        },
-        {
-            name: "Erik",
-            img: "https://images2.thanhnien.vn/zoom/686_429/528068263637045248/2024/7/8/erik-4-17204277188992053578208-0-0-900-1440-crop-17204281126641794292020.jpg",
-        },
-    ];
 
     const categories = [
         {
@@ -111,7 +112,6 @@ export default function SearchScreen() {
         },
     ];
 
-    // ========================== UI MÀN HÌNH ==========================
     return (
         <SafeAreaView
             className="flex-1 bg-[#080808]"
@@ -120,15 +120,81 @@ export default function SearchScreen() {
             <ScrollView className="flex-1 px-4">
                 {/* SEARCH BAR */}
                 <View className="flex-row items-center bg-neutral-900 rounded-full px-4 py-2 mt-6">
-                    <Ionicons name="search" size={24} color="gray" />
+                    <Ionicons name="search" size={28} color="gray" />
+
                     <TextInput
                         placeholder="Search songs, artist, album or playlist..."
                         placeholderTextColor="gray"
                         value={query}
                         onChangeText={setQuery}
+                        onFocus={() => setFocused(true)}
+                        onBlur={() => setFocused(false)}
                         className="ml-2 flex-1 text-white"
                     />
+
+                    {query.length > 0 && (
+                        <TouchableOpacity onPress={() => setQuery("")}>
+                            <Ionicons
+                                name="close-circle"
+                                size={20}
+                                color="gray"
+                            />
+                        </TouchableOpacity>
+                    )}
                 </View>
+
+                {/* LỊCH SỬ TÌM KIẾM */}
+                {query.trim().length === 0 &&
+                    !focused &&
+                    history.length > 0 && (
+                        <View className="mt-8">
+                            <View className="flex-row justify-between mb-3">
+                                <Text className="text-white text-lg font-semibold">
+                                    Lịch sử tìm kiếm
+                                </Text>
+
+                                <TouchableOpacity onPress={clearHistory}>
+                                    <Text className="text-red-400 text-sm">
+                                        Xoá hết
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+
+                            {history.map((item, index) => (
+                                <View
+                                    key={index}
+                                    className="flex-row items-center justify-between mb-3"
+                                >
+                                    <TouchableOpacity
+                                        className="flex-row items-center flex-1"
+                                        onPress={() => {
+                                            setQuery(item);
+                                            onSearch(item);
+                                        }}
+                                    >
+                                        <Ionicons
+                                            name="time"
+                                            size={18}
+                                            color="gray"
+                                        />
+                                        <Text className="text-white ml-2">
+                                            {item}
+                                        </Text>
+                                    </TouchableOpacity>
+
+                                    <TouchableOpacity
+                                        onPress={() => removeHistoryItem(item)}
+                                    >
+                                        <Ionicons
+                                            name="close"
+                                            size={18}
+                                            color="gray"
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+                            ))}
+                        </View>
+                    )}
 
                 {/* LOADING */}
                 {loading && (
@@ -156,6 +222,7 @@ export default function SearchScreen() {
                                                 pathname:
                                                     "/(tabs)/search/artist/[name]" as any,
                                                 params: {
+                                                    id: artist.id,
                                                     name: artist.name,
                                                     img: artist.images?.[0]
                                                         ?.url,
@@ -180,7 +247,7 @@ export default function SearchScreen() {
                         {/* Tracks */}
                         {result.tracks?.items?.length > 0 && (
                             <>
-                                <Text className="text-white text-lg font-semibold mb-3 mt-5">
+                                <Text className="text-white text-lg font-semibold mt-5 mb-3">
                                     Tracks
                                 </Text>
 
@@ -211,54 +278,66 @@ export default function SearchScreen() {
                     </View>
                 )}
 
-                {/* TRENDING - Chỉ hiện khi KHÔNG tìm kiếm */}
+                {/* TRENDING */}
                 {query.trim().length === 0 && (
                     <View className="mt-10">
                         <Text className="text-white text-lg font-semibold mb-3">
                             🔥 Đề xuất
                         </Text>
-                        <ScrollView
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                            contentContainerStyle={{ paddingRight: 16 }}
-                        >
-                            {trendingArtists.map((artist, index) => (
-                                <TouchableOpacity
-                                    key={index}
-                                    className="items-center mr-7"
-                                    onPress={() =>
-                                        router.push({
-                                            pathname:
-                                                "/(tabs)/search/artist/[name]" as any,
-                                            params: {
-                                                name: artist.name,
-                                                img: artist.img,
-                                            },
-                                        })
-                                    }
-                                >
-                                    <Image
-                                        source={{ uri: artist.img }}
-                                        className="w-20 h-20 rounded-full"
-                                    />
-                                    <Text
-                                        className="text-white text-xs mt-1 text-center w-20"
-                                        numberOfLines={2}
+
+                        {loadingTrending ? (
+                            <ActivityIndicator color="#1DB954" size="small" />
+                        ) : (
+                            <ScrollView
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                            >
+                                {trendingArtists.map((artist, index) => (
+                                    <TouchableOpacity
+                                        key={artist.id || index}
+                                        className="items-center mr-7"
+                                        onPress={() =>
+                                            router.push({
+                                                pathname:
+                                                    "/(tabs)/search/artist/[name]" as any,
+                                                params: {
+                                                    id: artist.id,
+                                                    name: artist.name,
+                                                    img:
+                                                        artist.images?.[0]
+                                                            ?.url || "",
+                                                },
+                                            })
+                                        }
                                     >
-                                        {artist.name}
-                                    </Text>
-                                </TouchableOpacity>
-                            ))}
-                        </ScrollView>
+                                        <Image
+                                            source={{
+                                                uri:
+                                                    artist.images?.[0]?.url ||
+                                                    "https://via.placeholder.com/100",
+                                            }}
+                                            className="w-20 h-20 rounded-full"
+                                        />
+                                        <Text
+                                            className="text-white text-xs mt-1 text-center w-20"
+                                            numberOfLines={2}
+                                        >
+                                            {artist.name}
+                                        </Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </ScrollView>
+                        )}
                     </View>
                 )}
 
-                {/* BROWSE - Chỉ hiện khi KHÔNG tìm kiếm */}
+                {/* BROWSE */}
                 {query.trim().length === 0 && (
                     <View className="mt-8 mb-10">
                         <Text className="text-white text-lg font-semibold mb-3">
                             Browse
                         </Text>
+
                         <View className="flex-row flex-wrap justify-between">
                             {categories.map((cat, index) => (
                                 <TouchableOpacity

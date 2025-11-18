@@ -13,7 +13,7 @@ export function useSearch() {
 
             const data = await searchSpotify({
                 q: query,
-                type: "track,artist", // muốn trả về gì thì thêm ở đây
+                type: "track,artist,album", // muốn trả về gì thì thêm ở đây
                 limit: 20,
             });
 

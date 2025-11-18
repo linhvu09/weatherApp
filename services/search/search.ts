@@ -14,5 +14,5 @@ export async function searchSpotify(params: SearchParams) {
         },
     });
 
-    return res.data; // đúng format Spotify trả về
+    return res.data;
 }
