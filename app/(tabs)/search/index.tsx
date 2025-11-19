@@ -51,7 +51,6 @@ export default function SearchScreen() {
 
         const timeout = setTimeout(() => {
             onSearch(query);
-            addHistory(query);
         }, 300);
 
         return () => clearTimeout(timeout);
@@ -117,7 +116,10 @@ export default function SearchScreen() {
             className="flex-1 bg-[#080808]"
             {...panResponder.panHandlers}
         >
-            <ScrollView className="flex-1 px-4">
+            <ScrollView
+                className="flex-1 px-4"
+                keyboardShouldPersistTaps="handled"
+            >
                 {/* SEARCH BAR */}
                 <View className="flex-row items-center bg-neutral-900 rounded-full px-4 py-2 mt-6">
                     <Ionicons name="search" size={28} color="gray" />
@@ -130,6 +132,8 @@ export default function SearchScreen() {
                         onFocus={() => setFocused(true)}
                         onBlur={() => setFocused(false)}
                         className="ml-2 flex-1 text-white"
+                        returnKeyType="search"
+                        onSubmitEditing={() => addHistory(query)}
                     />
 
                     {query.length > 0 && (
@@ -144,57 +148,55 @@ export default function SearchScreen() {
                 </View>
 
                 {/* LỊCH SỬ TÌM KIẾM */}
-                {query.trim().length === 0 &&
-                    !focused &&
-                    history.length > 0 && (
-                        <View className="mt-8">
-                            <View className="flex-row justify-between mb-3">
-                                <Text className="text-white text-lg font-semibold">
-                                    Lịch sử tìm kiếm
-                                </Text>
+                {query.trim().length === 0 && focused && history.length > 0 && (
+                    <View className="mt-8">
+                        <View className="flex-row justify-between mb-3">
+                            <Text className="text-white text-lg font-semibold">
+                                Lịch sử tìm kiếm
+                            </Text>
 
-                                <TouchableOpacity onPress={clearHistory}>
-                                    <Text className="text-red-400 text-sm">
-                                        Xoá hết
+                            <TouchableOpacity onPress={clearHistory}>
+                                <Text className="text-red-400 text-sm">
+                                    Xoá hết
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+
+                        {history.map((item, index) => (
+                            <View
+                                key={index}
+                                className="flex-row items-center justify-between mb-3"
+                            >
+                                <TouchableOpacity
+                                    className="flex-row items-center flex-1"
+                                    onPress={() => {
+                                        setQuery(item);
+                                        onSearch(item);
+                                    }}
+                                >
+                                    <Ionicons
+                                        name="time"
+                                        size={18}
+                                        color="gray"
+                                    />
+                                    <Text className="text-white ml-2">
+                                        {item}
                                     </Text>
                                 </TouchableOpacity>
-                            </View>
 
-                            {history.map((item, index) => (
-                                <View
-                                    key={index}
-                                    className="flex-row items-center justify-between mb-3"
+                                <TouchableOpacity
+                                    onPress={() => removeHistoryItem(item)}
                                 >
-                                    <TouchableOpacity
-                                        className="flex-row items-center flex-1"
-                                        onPress={() => {
-                                            setQuery(item);
-                                            onSearch(item);
-                                        }}
-                                    >
-                                        <Ionicons
-                                            name="time"
-                                            size={18}
-                                            color="gray"
-                                        />
-                                        <Text className="text-white ml-2">
-                                            {item}
-                                        </Text>
-                                    </TouchableOpacity>
-
-                                    <TouchableOpacity
-                                        onPress={() => removeHistoryItem(item)}
-                                    >
-                                        <Ionicons
-                                            name="close"
-                                            size={18}
-                                            color="gray"
-                                        />
-                                    </TouchableOpacity>
-                                </View>
-                            ))}
-                        </View>
-                    )}
+                                    <Ionicons
+                                        name="close"
+                                        size={18}
+                                        color="gray"
+                                    />
+                                </TouchableOpacity>
+                            </View>
+                        ))}
+                    </View>
+                )}
 
                 {/* LOADING */}
                 {loading && (
@@ -279,7 +281,7 @@ export default function SearchScreen() {
                 )}
 
                 {/* TRENDING */}
-                {query.trim().length === 0 && (
+                {query.trim().length === 0 && !focused && (
                     <View className="mt-10">
                         <Text className="text-white text-lg font-semibold mb-3">
                             🔥 Đề xuất
@@ -332,7 +334,7 @@ export default function SearchScreen() {
                 )}
 
                 {/* BROWSE */}
-                {query.trim().length === 0 && (
+                {query.trim().length === 0 && !focused && (
                     <View className="mt-8 mb-10">
                         <Text className="text-white text-lg font-semibold mb-3">
                             Browse
