@@ -1,5 +1,5 @@
-import { apiClient } from "../api-client";
 import type { Track } from "@/types/player";
+import { apiClient } from "../api-client";
 
 class AlbumService {
     async getAlbumTracks(albumId: string): Promise<Track[]> {
