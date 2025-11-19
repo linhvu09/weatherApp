@@ -18,6 +18,7 @@ interface AlbumData {
     title: string;
     subtitle: string;
     image: ImageSourcePropType;
+    playlistId: string;
 }
 
 const data: AlbumData[] = [
@@ -26,24 +27,28 @@ const data: AlbumData[] = [
         title: "ENGLISH SONGS",
         subtitle: "New Release",
         image: { uri: "https://picsum.photos/seed/music_feature/400/200" },
+        playlistId: "6jdTMw4K4W55JdRzzrxgei",
     },
     {
         id: "2",
         title: "GLOBAL HITS",
         subtitle: "Top Playlist",
         image: { uri: "https://picsum.photos/seed/album_happier/400/200" },
+        playlistId: "34NbomaTu7YuOYnky8nLXL",
     },
     {
         id: "3",
         title: "CHILLHOP PLAYLIST",
         subtitle: "Focus Time",
         image: { uri: "https://picsum.photos/seed/album_x/400/200" },
+        playlistId: "6mn9kuAlefrqO6omLQxJ2N",
     },
     {
         id: "4",
         title: "POP ANTHEMS",
-        subtitle: "Collection 2024",
+        subtitle: "Collection 2025",
         image: { uri: "https://picsum.photos/seed/album_y/400/200" },
+        playlistId: "1WH6WVBwPBz35ZbWsgCpgr",
     },
 ];
 
@@ -62,11 +67,12 @@ function AlbumItem({ item }: { item: AlbumData }) {
         }
 
         router.push({
-            pathname: `/(tabs)/home/album/${item.id}` as any,
+            pathname: `/(tabs)/home/playlist/${item.id}` as any,
             params: {
                 albumTitle: item.title,
                 subtitle: item.subtitle,
                 image: imageUri,
+                playlistId: item.playlistId,
             },
         });
     };

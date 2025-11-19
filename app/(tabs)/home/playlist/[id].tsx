@@ -11,10 +11,10 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { albumService } from "@/services/album/album.service";
-import { NewReleaseTrack } from "@/types/album";
+import { playlistService } from "@/services/playlist/playlist.service";
+import { SimplifiedTrack } from "@/types/playlist";
 
-const SongItem: React.FC<{ item: NewReleaseTrack }> = ({ item }) => {
+const SongItem: React.FC<{ item: SimplifiedTrack }> = ({ item }) => {
     const handleTrackPress = () => {};
     const handleMenuPress = () => {};
 
@@ -38,7 +38,7 @@ const SongItem: React.FC<{ item: NewReleaseTrack }> = ({ item }) => {
                 <Image
                     source={{
                         uri:
-                            item.albumImageUrl ||
+                            item.imageUrl ||
                             "https://via.placeholder.com/80x80.png?text=New",
                     }}
                     style={{
@@ -57,13 +57,13 @@ const SongItem: React.FC<{ item: NewReleaseTrack }> = ({ item }) => {
                         }}
                         numberOfLines={1}
                     >
-                        {item.name}
+                        {item.title}
                     </Text>
                     <Text
                         style={{ color: "#888", fontSize: 14 }}
                         numberOfLines={1}
                     >
-                        {item.artistNames} • {item.albumName}
+                        {item.artistName}
                     </Text>
                 </View>
             </TouchableOpacity>
@@ -80,30 +80,37 @@ const SongItem: React.FC<{ item: NewReleaseTrack }> = ({ item }) => {
 
 export default function AlbumDetailScreen() {
     const params = useLocalSearchParams();
-    const { albumTitle, subtitle, image } = params;
+    const { albumTitle, subtitle, image, playlistId } = params;
 
-    const [albumSongs, setAlbumSongs] = useState<NewReleaseTrack[]>([]);
+    const [albumSongs, setAlbumSongs] = useState<SimplifiedTrack[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const fetchNewSongs = async () => {
+        const fetchPlaylistSongs = async () => {
+            if (!playlistId || Array.isArray(playlistId)) {
+                setError("Lỗi: Không tìm thấy ID Playlist.");
+                setIsLoading(false);
+                return;
+            }
+
             try {
-                const songs = await albumService.fetchNewReleaseTracks();
+                const songs = await playlistService.getPlaylistTracks(
+                    playlistId as string,
+                );
+
                 setAlbumSongs(songs);
                 setError(null);
             } catch (err: any) {
-                console.error("Lỗi khi tải Playlist Ảo:", err);
-                setError(
-                    "Không thể tải dữ liệu bài hát mới. Vui lòng thử lại.",
-                );
+                console.error("Lỗi khi tải Playlist Spotify:", err);
+                setError("Không thể tải dữ liệu bài hát từ Spotify.");
             } finally {
                 setIsLoading(false);
             }
         };
 
-        fetchNewSongs();
-    }, []);
+        fetchPlaylistSongs();
+    }, [playlistId]);
 
     if (isLoading) {
         return (
