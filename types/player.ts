@@ -21,6 +21,22 @@ export interface Track {
     youtubeId?: string; // Thêm YouTube video ID
 }
 
+export interface TrackMockData {
+    _id: string;
+    id: string;
+    name: string;
+    album: string;
+    album_id: string;
+    artists: string[]; // mảng string
+    artist_ids: string[]; // mảng string
+    track_number: number;
+    disc_number: number;
+    explicit: boolean;
+    year: number;
+    release_date: string; // ISO date dạng string
+    preview_url: string;
+}
+
 export interface PlayerState {
     currentTrack: Track | null;
     isPlaying: boolean;

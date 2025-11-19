@@ -1,6 +1,7 @@
 import { RecentlyPlayedItem } from "@/components/library/recently-played-item";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { usePlayer } from "@/contexts/PlayerContext";
+import { trackService } from "@/services";
 import type { Song } from "@/types/library";
 import { Stack, useRouter } from "expo-router";
 import {
@@ -14,7 +15,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const DOWNLOADED_SONGS: Song[] = [
     {
-        id: "1",
+        id: "7lmeHLHBe4nmXzuXc0HDjk",
         title: "Inside Out",
         artist: "The Chainsmokers, Charlee",
         coverUrl: "https://picsum.photos/200/200?random=1",
@@ -76,6 +77,10 @@ export default function DownloadsScreen() {
     const { playTrack, addToQueue } = usePlayer();
 
     const handleSongPress = (song: Song) => {
+        const getTrack = async () => {
+            const track = await trackService.getTrackById(song.id);
+            return track.preview_url;
+        };
         // Convert Song to Track format
         const track = {
             id: song.id,
@@ -93,7 +98,7 @@ export default function DownloadsScreen() {
                 ],
             },
             duration_ms: song.duration,
-            preview_url: `https://example.com/preview/${song.id}`,
+            preview_url: getTrack().toString(),
             uri: `spotify:track:${song.id}`,
         };
 
