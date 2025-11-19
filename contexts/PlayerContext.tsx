@@ -1,7 +1,6 @@
 import type { PlayerState, Track } from "@/types/player";
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from "expo-av";
 import { createContext, useCallback, useContext, useState } from "react";
-import { youtubeService } from "@/services/youtube/youtube.service";
 
 interface PlayerContextValue extends PlayerState {
     playTrack: (track: Track | null) => void;
@@ -28,7 +27,6 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     const [repeat, setRepeat] = useState<"off" | "track" | "context">("off");
     const [shuffle, setShuffle] = useState(false);
     const [sound, setSound] = useState<Audio.Sound | null>(null);
-    const [youtubeId, setYoutubeId] = useState<string | undefined>(undefined);
 
     const playTrack = useCallback(
         async (track: Track | null) => {
@@ -42,7 +40,6 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
                 setPosition(0);
                 setDuration(0);
                 setQueue([]);
-                setYoutubeId(undefined);
                 return;
             }
 
@@ -51,25 +48,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
             setPosition(0);
             setDuration(track.duration_ms);
 
-            // Tìm YouTube video ID
-            if (!track.youtubeId) {
-                console.log("🔍 Searching YouTube for:", track.name);
-                const videoId = await youtubeService.searchTrack(
-                    track.name,
-                    track.artists.map((a) => a.name).join(", "),
-                );
-                if (videoId) {
-                    track.youtubeId = videoId;
-                    setYoutubeId(videoId);
-                    console.log("✅ Found YouTube ID:", videoId);
-                } else {
-                    console.log("❌ YouTube video not found");
-                }
-            } else {
-                setYoutubeId(track.youtubeId);
-            }
-
-            // Vẫn thử phát preview nếu có
+            // Phát preview nếu có
             if (track.preview_url) {
                 setIsPlaying(true);
                 await Audio.setAudioModeAsync({
@@ -88,9 +67,6 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
                 );
                 await newSound.playAsync();
                 setSound(newSound);
-            } else {
-                console.log("⚠️ No preview_url, will use YouTube player");
-                setIsPlaying(false);
             }
         },
         [sound],
@@ -169,7 +145,6 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
                 volume,
                 repeat,
                 shuffle,
-                youtubeId,
                 playTrack,
                 togglePlayPause,
                 playNext,

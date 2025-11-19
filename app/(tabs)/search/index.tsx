@@ -246,7 +246,6 @@ export default function SearchScreen() {
                             </>
                         )}
 
-                        {/* Tracks */}
                         {result.tracks?.items?.length > 0 && (
                             <>
                                 <Text className="text-white text-lg font-semibold mt-5 mb-3">
