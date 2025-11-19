@@ -1,6 +1,8 @@
 import type { PlayerState, Track } from "@/types/player";
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from "expo-av";
 import { createContext, useCallback, useContext, useState } from "react";
+import { youtubeService } from "@/services/youtube/youtube.service";
+
 interface PlayerContextValue extends PlayerState {
     playTrack: (track: Track | null) => void;
     togglePlayPause: () => void;
@@ -11,7 +13,7 @@ interface PlayerContextValue extends PlayerState {
     removeFromQueue: (trackId: string) => void;
     toggleShuffle: () => void;
     toggleRepeat: () => void;
-    clearPlayer: () => void; // thêm function clear
+    clearPlayer: () => void;
 }
 
 const PlayerContext = createContext<PlayerContextValue | null>(null);
@@ -26,6 +28,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     const [repeat, setRepeat] = useState<"off" | "track" | "context">("off");
     const [shuffle, setShuffle] = useState(false);
     const [sound, setSound] = useState<Audio.Sound | null>(null);
+    const [youtubeId, setYoutubeId] = useState<string | undefined>(undefined);
 
     const playTrack = useCallback(
         async (track: Track | null) => {
@@ -33,37 +36,62 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
                 await sound.unloadAsync();
                 setSound(null);
             }
-            if (!track || !track.preview_url) {
+            if (!track) {
                 setCurrentTrack(null);
                 setIsPlaying(false);
                 setPosition(0);
                 setDuration(0);
                 setQueue([]);
+                setYoutubeId(undefined);
                 return;
             }
 
+            // Set track info
             setCurrentTrack(track);
-            setIsPlaying(true);
             setPosition(0);
             setDuration(track.duration_ms);
 
-            await Audio.setAudioModeAsync({
-                allowsRecordingIOS: false,
-                staysActiveInBackground: false,
-                playsInSilentModeIOS: true,
-                shouldDuckAndroid: true,
-                interruptionModeIOS: InterruptionModeIOS.DoNotMix,
-                interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
-                playThroughEarpieceAndroid: false,
-            });
+            // Tìm YouTube video ID
+            if (!track.youtubeId) {
+                console.log("🔍 Searching YouTube for:", track.name);
+                const videoId = await youtubeService.searchTrack(
+                    track.name,
+                    track.artists.map((a) => a.name).join(", "),
+                );
+                if (videoId) {
+                    track.youtubeId = videoId;
+                    setYoutubeId(videoId);
+                    console.log("✅ Found YouTube ID:", videoId);
+                } else {
+                    console.log("❌ YouTube video not found");
+                }
+            } else {
+                setYoutubeId(track.youtubeId);
+            }
 
-            const { sound: newSound } = await Audio.Sound.createAsync(
-                { uri: track.preview_url },
-                { shouldPlay: true },
-            );
-            await newSound.playAsync();
+            // Vẫn thử phát preview nếu có
+            if (track.preview_url) {
+                setIsPlaying(true);
+                await Audio.setAudioModeAsync({
+                    allowsRecordingIOS: false,
+                    staysActiveInBackground: false,
+                    playsInSilentModeIOS: true,
+                    shouldDuckAndroid: true,
+                    interruptionModeIOS: InterruptionModeIOS.DoNotMix,
+                    interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
+                    playThroughEarpieceAndroid: false,
+                });
 
-            setSound(newSound);
+                const { sound: newSound } = await Audio.Sound.createAsync(
+                    { uri: track.preview_url },
+                    { shouldPlay: true },
+                );
+                await newSound.playAsync();
+                setSound(newSound);
+            } else {
+                console.log("⚠️ No preview_url, will use YouTube player");
+                setIsPlaying(false);
+            }
         },
         [sound],
     );
@@ -141,6 +169,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
                 volume,
                 repeat,
                 shuffle,
+                youtubeId,
                 playTrack,
                 togglePlayPause,
                 playNext,

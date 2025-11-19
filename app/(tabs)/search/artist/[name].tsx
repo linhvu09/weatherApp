@@ -1,9 +1,11 @@
 import { artistService } from "@/services/artist/artist.service";
+import { albumService } from "@/services/album/album.service";
 import type { SimplifiedAlbumObject } from "@/types/artist";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
+import { usePlayer } from "@/contexts/PlayerContext";
 import {
     ActivityIndicator,
     FlatList,
@@ -16,6 +18,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ArtistDetail() {
     const router = useRouter();
+    const { playTrack } = usePlayer();
     const { name, img, id } = useLocalSearchParams<{
         name: string;
         img: string;
@@ -65,11 +68,54 @@ export default function ArtistDetail() {
         }
     };
 
+    const handleAlbumPress = async (item: SimplifiedAlbumObject) => {
+        if (item.album_type === "single") {
+            // Phát nhạc khi là single
+            try {
+                console.log("🎵 Loading single:", item.name, item.id);
+                const tracks = await albumService.getAlbumTracks(item.id);
+                console.log("📀 Tracks received:", tracks);
+
+                if (tracks && tracks.length > 0) {
+                    console.log("▶️ Playing track:", tracks[0].name);
+
+                    await playTrack(tracks[0]);
+
+                    console.log("🔄 Navigating to player");
+                    router.push({
+                        pathname: "/player/[id]",
+                        params: {
+                            id: tracks[0].id,
+                        },
+                    });
+                } else {
+                    console.log("❌ No tracks found");
+                }
+            } catch (error) {
+                console.error("❌ Error loading single:", error);
+            }
+        } else {
+            // Chuyển sang album detail cho các loại khác
+            router.push({
+                pathname: "/(tabs)/home/album/[id]",
+                params: {
+                    id: item.id,
+                    albumTitle: item.name,
+                    subtitle: `${item.album_type} • ${item.artists.map((a) => a.name).join(", ")}`,
+                    image:
+                        item.images[0]?.url ||
+                        "https://via.placeholder.com/300",
+                },
+            });
+        }
+    };
+
     const renderAlbum = ({ item }: { item: SimplifiedAlbumObject }) => (
         <TouchableOpacity
             key={item.id}
             className="flex-row items-center mb-4"
             activeOpacity={0.7}
+            onPress={() => handleAlbumPress(item)}
         >
             <Image
                 source={{

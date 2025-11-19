@@ -1,8 +1,9 @@
 import { usePlayer } from "@/contexts/PlayerContext";
+import { YouTubePlayerComponent } from "@/components/player/YouTubePlayer";
 import { Ionicons } from "@expo/vector-icons";
 import Slider from "@react-native-community/slider";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
     FlatList,
     Image,
@@ -23,6 +24,7 @@ export default function PlayerScreen() {
         queue,
         shuffle,
         repeat,
+        youtubeId,
         togglePlayPause,
         playNext,
         playPrevious,
@@ -35,8 +37,13 @@ export default function PlayerScreen() {
     const [showQueue, setShowQueue] = useState(false);
     const { id } = useLocalSearchParams();
 
+    useEffect(() => {
+        if (!currentTrack) {
+            router.back();
+        }
+    }, [currentTrack, router]);
+
     if (!currentTrack) {
-        router.back();
         return null;
     }
 
@@ -251,23 +258,28 @@ export default function PlayerScreen() {
                     </TouchableOpacity>
                 </View>
 
-                {/* Album Art */}
+                {/* Album Art hoặc YouTube Player */}
                 <View className="items-center px-6 mt-8">
-                    <View className="w-full aspect-square rounded-lg overflow-hidden shadow-2xl">
-                        <Image
-                            source={{
-                                uri: currentTrack.album.images[0]?.url,
-                            }}
-                            className="w-full h-full"
-                            resizeMode="cover"
-                        />
-                        {/* Lyrics Overlay */}
-                        <View className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
-                            <Text className="text-white text-center text-sm font-medium leading-5">
-                                Let me see the dark sides as well as the bright
-                            </Text>
+                    {youtubeId ? (
+                        <YouTubePlayerComponent />
+                    ) : (
+                        <View className="w-full aspect-square rounded-lg overflow-hidden shadow-2xl">
+                            <Image
+                                source={{
+                                    uri: currentTrack.album.images[0]?.url,
+                                }}
+                                className="w-full h-full"
+                                resizeMode="cover"
+                            />
+                            {/* Lyrics Overlay */}
+                            <View className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
+                                <Text className="text-white text-center text-sm font-medium leading-5">
+                                    Let me see the dark sides as well as the
+                                    bright
+                                </Text>
+                            </View>
                         </View>
-                    </View>
+                    )}
                 </View>
 
                 {/* Connect to Device */}
