@@ -3,6 +3,8 @@ export * from "./api-client";
 export * from "./api-user-be";
 export * from "./artist";
 export * from "./auth";
+export * from "./following/following.service";
 export * from "./playlist";
+export * from "./search/search";
 export * from "./spotify-token";
 export * from "./track";

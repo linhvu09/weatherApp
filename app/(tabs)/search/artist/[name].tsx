@@ -1,13 +1,15 @@
-import { artistService } from "@/services/artist/artist.service";
+import { usePlayer } from "@/contexts/PlayerContext";
 import { albumService } from "@/services/album/album.service";
+import { artistService } from "@/services/artist/artist.service";
+import { followingService } from "@/services/following/following.service";
 import type { SimplifiedAlbumObject } from "@/types/artist";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { usePlayer } from "@/contexts/PlayerContext";
 import {
     ActivityIndicator,
+    Alert,
     FlatList,
     Image,
     Text,
@@ -29,14 +31,51 @@ export default function ArtistDetail() {
     const [loading, setLoading] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);
     const [offset, setOffset] = useState(0);
+    const [isFollowing, setIsFollowing] = useState(false);
+    const [followLoading, setFollowLoading] = useState(false);
+
     const limit = 20;
     const maxTotal = 50;
 
     useEffect(() => {
         if (id) {
             loadAlbums();
+            checkFollowStatus();
         }
     }, [id]);
+
+    const checkFollowStatus = async () => {
+        try {
+            const status = await followingService.isFollowing(id);
+            setIsFollowing(status);
+        } catch (error) {
+            console.error("Error checking follow status:", error);
+        }
+    };
+
+    const handleFollowToggle = async () => {
+        try {
+            setFollowLoading(true);
+
+            const newStatus = await followingService.toggleFollow({
+                id,
+                name,
+                imageUrl: img,
+            });
+
+            setIsFollowing(newStatus);
+
+            Alert.alert(
+                "Thành công",
+                newStatus ? `Đã theo dõi ${name}` : `Đã bỏ theo dõi ${name}`,
+            );
+        } catch (error) {
+            console.error("Error toggling follow:", error);
+            Alert.alert("Lỗi", "Không thể cập nhật trạng thái theo dõi");
+        } finally {
+            setFollowLoading(false);
+        }
+    };
 
     const loadAlbums = async (loadMore = false) => {
         try {
@@ -70,32 +109,20 @@ export default function ArtistDetail() {
 
     const handleAlbumPress = async (item: SimplifiedAlbumObject) => {
         if (item.album_type === "single") {
-            // Phát nhạc khi là single
             try {
-                console.log("🎵 Loading single:", item.name, item.id);
                 const tracks = await albumService.getAlbumTracks(item.id);
-                console.log("📀 Tracks received:", tracks);
 
                 if (tracks && tracks.length > 0) {
-                    console.log("▶️ Playing track:", tracks[0].name);
-
                     await playTrack(tracks[0]);
-
-                    console.log("🔄 Navigating to player");
                     router.push({
                         pathname: "/player/[id]",
-                        params: {
-                            id: tracks[0].id,
-                        },
+                        params: { id: tracks[0].id },
                     });
-                } else {
-                    console.log("❌ No tracks found");
                 }
             } catch (error) {
-                console.error("❌ Error loading single:", error);
+                console.error("Error loading single:", error);
             }
         } else {
-            // Chuyển sang album detail cho các loại khác
             router.push({
                 pathname: "/(tabs)/home/album/[id]",
                 params: {
@@ -137,12 +164,7 @@ export default function ArtistDetail() {
                     {item.total_tracks} tracks
                 </Text>
             </View>
-            <Ionicons
-                name="ellipsis-vertical"
-                size={18}
-                color="gray"
-                className="ml-auto"
-            />
+            <Ionicons name="ellipsis-vertical" size={18} color="gray" />
         </TouchableOpacity>
     );
 
@@ -175,9 +197,32 @@ export default function ArtistDetail() {
                     2.3M monthly listeners
                 </Text>
                 <View className="flex-row items-center space-x-4">
-                    <TouchableOpacity className="bg-white rounded-full px-5 py-2">
-                        <Text className="font-semibold text-black">Follow</Text>
+                    {/* Follow Button */}
+                    <TouchableOpacity
+                        onPress={handleFollowToggle}
+                        disabled={followLoading}
+                        className={`rounded-full px-5 py-2 ${
+                            isFollowing
+                                ? "bg-neutral-800 border border-white/20"
+                                : "bg-white"
+                        }`}
+                    >
+                        {followLoading ? (
+                            <ActivityIndicator
+                                size="small"
+                                color={isFollowing ? "white" : "black"}
+                            />
+                        ) : (
+                            <Text
+                                className={`font-semibold ${
+                                    isFollowing ? "text-white" : "text-black"
+                                }`}
+                            >
+                                {isFollowing ? "Following" : "Follow"}
+                            </Text>
+                        )}
                     </TouchableOpacity>
+
                     <TouchableOpacity className="p-2">
                         <Ionicons
                             name="share-outline"
@@ -185,13 +230,14 @@ export default function ArtistDetail() {
                             color="white"
                         />
                     </TouchableOpacity>
+
                     <TouchableOpacity className="bg-[#1DB954] rounded-full p-3">
                         <Ionicons name="play" size={22} color="white" />
                     </TouchableOpacity>
                 </View>
             </View>
 
-            {/* Album list với FlatList và load more */}
+            {/* Album list */}
             {loading ? (
                 <ActivityIndicator
                     size="large"

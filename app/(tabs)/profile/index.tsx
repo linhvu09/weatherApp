@@ -1,8 +1,9 @@
 import { authService } from "@/services";
+import { followingService } from "@/services/following/following.service";
 import { User } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
 import {
     Alert,
     Image,
@@ -17,10 +18,18 @@ export default function ProfileScreen() {
     const router = useRouter();
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const [followingCount, setFollowingCount] = useState(0);
 
     useEffect(() => {
         loadUser();
     }, []);
+
+    // Reload following count khi màn hình focus
+    useFocusEffect(
+        useCallback(() => {
+            loadFollowingCount();
+        }, []),
+    );
 
     const loadUser = async () => {
         try {
@@ -30,6 +39,15 @@ export default function ProfileScreen() {
             console.error("❌ Lỗi load user:", error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const loadFollowingCount = async () => {
+        try {
+            const count = await followingService.getFollowingCount();
+            setFollowingCount(count);
+        } catch (error) {
+            console.error("Error loading following count:", error);
         }
     };
 
@@ -52,6 +70,10 @@ export default function ProfileScreen() {
                 },
             },
         ]);
+    };
+
+    const handleFollowingPress = () => {
+        router.push("/(tabs)/library/artists");
     };
 
     if (loading) {
@@ -112,12 +134,20 @@ export default function ProfileScreen() {
                         <Text className="text-white text-2xl font-bold">0</Text>
                         <Text className="text-gray-400 text-sm">Playlist</Text>
                     </View>
-                    <View className="items-center">
-                        <Text className="text-white text-2xl font-bold">0</Text>
+
+                    <TouchableOpacity
+                        className="items-center"
+                        onPress={handleFollowingPress}
+                        activeOpacity={0.7}
+                    >
+                        <Text className="text-white text-2xl font-bold">
+                            {followingCount}
+                        </Text>
                         <Text className="text-gray-400 text-sm">
                             Đang theo dõi
                         </Text>
-                    </View>
+                    </TouchableOpacity>
+
                     <View className="items-center">
                         <Text className="text-white text-2xl font-bold">0</Text>
                         <Text className="text-gray-400 text-sm">
@@ -128,6 +158,32 @@ export default function ProfileScreen() {
 
                 {/* Menu Items */}
                 <View className="px-6">
+                    {/* Artists Following */}
+                    <TouchableOpacity
+                        className="flex-row items-center py-4 border-b border-neutral-800"
+                        activeOpacity={0.7}
+                        onPress={handleFollowingPress}
+                    >
+                        <Ionicons
+                            name="person-outline"
+                            size={24}
+                            color="#9CA3AF"
+                        />
+                        <View className="flex-1 ml-4">
+                            <Text className="text-white text-base">
+                                Nghệ sĩ theo dõi
+                            </Text>
+                            <Text className="text-gray-500 text-sm mt-1">
+                                {followingCount} nghệ sĩ
+                            </Text>
+                        </View>
+                        <Ionicons
+                            name="chevron-forward"
+                            size={20}
+                            color="#9CA3AF"
+                        />
+                    </TouchableOpacity>
+
                     {/* Account Settings */}
                     <TouchableOpacity
                         className="flex-row items-center py-4 border-b border-neutral-800"
